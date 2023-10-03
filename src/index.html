@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html> 
+  <head>
+    <!-- <meta charset="utf-8"/> -->
+    <title>SIMULADOR DE ANIMACIONES DE LA CRUZ</title>
+    <script type = "text/javascript" src="./js/fonts/fonts1.js"></script>
+    <script type = "text/javascript" src="./js/fonts/fonts2.js"></script>
+    <script type = "text/javascript" src="./js/fonts/fonts3.js"></script>
+    <script type = "text/javascript" src="./js/fonts/fonts4.js"></script> 
+    <script type = "text/javascript" src="./js/dib/dib.js"></script> 
+    <script type = "text/javascript" src="./js/cruzsim.js"></script>
+    <script type = "text/javascript" src="./js/generateSequence.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/displayInfo.css">
+    
+  </head>
+   
+  <body>
+    <header>
+      <h1>SIMULADOR DE ANIMACIONES DE LA CRUZ V2</h1>
+    </header> 
+
+    <main>
+
+      <div id="seccion1">
+        <!-- <button class="button1 bouncy" onclick="inicioSimulacion()">Inicio</button>
+        <button class="button1 bouncy" style="animation-delay:0.07s" onclick="finSimulacion()">Fin</button> -->
+        <button class="button1 bouncy" style="animation-delay:0.14s" onclick="playAnimacion()">Play</button>
+        <button class="button1 bouncy" style="animation-delay:0.21s" onclick="stopAnimacion()">Stop</button>
+        <button class="button1 bouncy" style="animation-delay:0.28s" onclick="displaySequence()">Create sequence</button>
+        <button class="button1 bouncy" style="animation-delay:0.35s" onclick="downloadSequence()">Download sequence</button>
+        <label for="fileSelector">Select animation</label>
+        <input type=file id=fileSelector accept=".led">
+        <label for="fileSelectorCrossMask">Select mask</label>
+        <input type=file id=fileSelectorCrossMask accept=".json">
+        
+  
+        <p id="textoInfo"></p>
+      </div>
+  
+      <div id="seccion2" style="display:none;">
+        <section class="seqForm">
+          <h2>Creación de secuencia</h2>
+          <form>
+            <div class="row">
+              <div class="column">
+                <div class="container">
+                  <label for="id">ID:</label>
+                  <input type="text" id="id" name="_id" value="123456789abcdef">
+                </div>
+                <div class="container">
+                  <label for="id_cross">ID Cruz:</label>
+                  <input type="text" id="id_cross" name="id_cross" value="123456789abcdef">
+                </div>
+                <div class="container">
+                  <label for="name">Nombre:</label>
+                  <input type="text" id="name" name="name" value="123456789abcdef">
+                </div>
+              </div>
+              <div class="column">
+                <div class="container">
+                  <label for="category">Categoría:</label>
+                  <select id="category" name="category">
+                    <option value="daily">Diaria</option>
+                    <option value="holiday">Festiva</option>
+                    <option value="on_guard">En Guardia</option>
+                  </select>
+                </div>
+                <div class="container">
+                  <label for="default">Por Defecto:</label>
+                  <input type="checkbox" id="default" name="default">
+                </div>
+              </div>
+            </div>
+            <div>
+              <label for="from-time">Ejecutar secuencia desde</label>
+              <input type="time" id="from-time" name="from-time" step="1" value="00:00:00">
+              <label for="to-time">hasta</label>
+              <input type="time" id="to-time" name="to-time" step="1" value="23:59:59">
+            </div>
+            <div style="display:flex;">
+              <table id="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Parametros</th>
+                    <th><button type="button" onclick="addAction()">+ Acción</button></th></tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+
+            <button type="submit">Crear secuencia</button>
+          </form>
+          <button onclick="displayAnimation()">Return</button>
+        </section>
+      </div>
+      
+  
+      <!-- <div class="results">
+        <h2>Form Data</h2>
+        <pre></pre>
+      </div> -->
+
+
+
+
+    </main>
+    <footer>
+
+    </footer>
+  </body>
+</html>

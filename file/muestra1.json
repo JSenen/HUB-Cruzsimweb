@@ -1,0 +1,52 @@
+{
+    "sequences": {
+        "_id": "636e5b68e1cf78bf818c6915",
+        "id_cross": "636e5b68e1cf78bf818c6907",
+        "name": "Cerrado",
+        "category": "daily",
+        "default": true,
+        "actions": [
+            {
+                "_id": "60ec087cc232056ffe0acf2a",
+                "type": "time",
+                "parameters": {
+                    "top_drawing": 1,
+                    "bottom_drawing": 1,
+                    "effect": 5,
+                    "delete_single_row": true,
+                    "delete_all": true,
+                    "text_in_out": true,
+                    "text_only_in": false,
+                    "font_size": 3,
+                    "row": 3,
+                    "speed": 5,
+                    "pause": 2,
+                    "orla": false,
+                    "color": 1
+                }
+            },
+            {
+                "_id": "60ec095bc232056ffe0acf2b",
+                "type": "temperature",
+                "parameters": {
+                    "top_drawing": 1,
+                    "bottom_drawing": 1,
+                    "effect": 5,
+                    "delete_single_row": true,
+                    "delete_all": true,
+                    "text_in_out": true,
+                    "text_only_in": false,
+                    "font_size": 3,
+                    "row": 3,
+                    "speed": 5,
+                    "pause": 2,
+                    "orla": false,
+                    "color": 1
+                }
+            }
+        ],
+        "__v": 0,
+        "from_time": "00:00:00",
+        "to_time": "23:59:59"
+    }
+}
