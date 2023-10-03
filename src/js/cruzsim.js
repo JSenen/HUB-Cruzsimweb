@@ -96,7 +96,21 @@ function playAnimacion() {
     frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
   };
 }
+// ADD SENEN ##################################################################
 
+function limpiarCampo() {
+  const campo = document.getElementById("fileSelector");
+  campo.value = ""; // Borra la selección actual del campo
+  // Para restablecer el campo y permitir al usuario seleccionar un nuevo archivo,
+  // creamos un nuevo campo de entrada de archivos y reemplazamos el existente
+  const nuevoCampo = document.createElement("input");
+  nuevoCampo.type = "file";
+  nuevoCampo.id = "fileSelector";
+  nuevoCampo.accept = ".led";
+  campo.parentNode.replaceChild(nuevoCampo, campo);
+}
+
+// END ADD ######################################################################
 
 
 function dibujarAnimacion() {
