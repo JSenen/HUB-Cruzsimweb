@@ -45,8 +45,10 @@ var scape_row;
 var bucle;
 var timeoutId;
 
+//SENEN --> Código al cargar la página
 window.onload = function () {
   document.getElementById("textoInfo").innerHTML = "inicio onLoad";
+  //SENEN --> Se crea el CANVAS en el cuerpo del documento
   canvas = document.createElement('canvas');
   canvas.width = 560;
   canvas.height = 560;
@@ -70,7 +72,8 @@ window.onload = function () {
 
 
   document.getElementById("textoInfo").innerHTML = "Fin onLoad.";
-
+  //SENEN --> Se obtiene una referencia al formulario HTML con la clase "seqForm" y se agrega un controlador de eventos para el evento de envío del formulario (submit).
+  //Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
   form = document.querySelector('.seqForm');
   form.addEventListener('submit', handleFormSubmit);
   seccion1 = document.getElementById("seccion1");
@@ -81,7 +84,9 @@ window.onload = function () {
 function playAnimacion() {
   finSimulacion();
   stopAnimacion();
-  document.getElementById("textoInfo").innerHTML = "Inicio animacion";
+  playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
+  document.getElementById("textoInfo").innerHTML = "Inicio secuencia"; //SENEN--> Colocamos txt secuencia para distinguirlo de animacion
+  //SENEN --> Coge archivo .led de existir alguno y lee contenido
   let myfile = document.getElementById("fileSelector").files[0];
   let reader = new FileReader();
   reader.readAsArrayBuffer(myfile);
@@ -93,6 +98,7 @@ function playAnimacion() {
     frameCounter = 0;
     bytesOffet = 0;
     stop = false;
+    //Lanza función dibujar la animación
     frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
   };
 }
@@ -382,7 +388,10 @@ function showAction(action, jsonData) {
   //var line = action.parameters.row;                           //(EN ESTE CASO NO SE USA, YA QUE LA POSICION DEL TEXTO SE DETERMINA CON 'LED') Fila en la que se muestra el mensaje
   var speed = action.parameters.speed;                          //Velocidad del texto
   var pausa = action.parameters.pause;                          //Tiempo de espera que realiza el texto
+
+  //TODO: SENEN--> Revisar funcionamiento ORLA
   var orla = action.parameters.orla;                            //Orla activada o no
+
   var tipography = action.parameters.tipografia;                //Tipografia a utilizar
   var color = action.parameters.color;                          //Color seleccionado
   var led = action.parameters.led;                              //Fila a partir de donde se mostrara el mensaje
@@ -429,7 +438,7 @@ function showAction(action, jsonData) {
     case "Texto":
       mensaje = action.parameters.message;
       break;
-
+    //TODO: SENEN--> En esta caso debería cargar aquí la animación
     case "Animación":
       mensaje = action.parameters.message;
       break;
@@ -678,7 +687,7 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
       } else if ( action_orla == false && (mascara[i][j] == 4 || mascara[i][j] == 5 || mascara[i][j] == 6)) {
         ctx.drawImage(bmpApagado, x, y);
       }
-
+      
       if (mascara[i][j] == 0 ) {
         ctx.drawImage(bmpBlanco, x, y);
       }
