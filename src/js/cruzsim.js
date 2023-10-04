@@ -97,7 +97,7 @@ function playAnimacion() {
   };
 }
 // ADD SENEN ##################################################################
-
+// Función eliminar fichero .led seleccionado para pruebas error mascara
 function limpiarCampo() {
   const campo = document.getElementById("fileSelector");
   campo.value = ""; // Borra la selección actual del campo
