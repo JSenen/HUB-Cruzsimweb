@@ -85,7 +85,7 @@ function playAnimacion() {
   finSimulacion();
   stopAnimacion();
   playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
-  document.getElementById("textoInfo").innerHTML = "Inicio secuencia"; //SENEN--> Colocamos txt secuencia para distinguirlo de animacion
+  document.getElementById("textoInfo").innerHTML = "Inicio secuencia"; //SENEN--> Colocamos txt secuencia para distinguirlo de animacion led
   //SENEN --> Coge archivo .led de existir alguno y lee contenido
   let myfile = document.getElementById("fileSelector").files[0];
   let reader = new FileReader();
@@ -98,7 +98,7 @@ function playAnimacion() {
     frameCounter = 0;
     bytesOffet = 0;
     stop = false;
-    //Lanza función dibujar la animación
+    //Lanza función dibujar la animación despues de cargar fichero led 
     frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
   };
 }
@@ -230,7 +230,7 @@ function dibujarAnimacion() {
     frameControl = setInterval(dibujarAnimacion, framePause);
   }
   else {
-    document.getElementById("textoInfo").innerHTML = "Fin animación cruz.";
+    document.getElementById("textoInfo").innerHTML = "Fin animación cruz FICHERO .LED"; //TODO: SENEN --> Cambiar despues de pruebas
   }
 
 }
