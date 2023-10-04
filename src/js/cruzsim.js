@@ -129,7 +129,13 @@ function dibujarAnimacion() {
   var LEDColor3;
   var LEDColor4;
 
-  clearInterval(frameControl);
+  // SENEN--> Verifica si se han ejecutado todos los cuadros
+  if (frameCounter >= framesNum || stop) {
+    clearInterval(frameControl);
+    document.getElementById("textoInfo").innerHTML = "Fin de la animación"; // Mostrar un mensaje de finalización
+    return;
+  }
+
   // leer pausa
   let framePause = 0;
   framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
@@ -226,13 +232,15 @@ function dibujarAnimacion() {
     }
   }
   frameCounter++;
-  if ((frameCounter < framesNum) && (stop == false)) {
+
+  //SENEN --> Configura el próximo intervalo si no se ha detenido
+  if (frameCounter < framesNum && !stop) {
     frameControl = setInterval(dibujarAnimacion, framePause);
   }
   else {
-    document.getElementById("textoInfo").innerHTML = "Fin animación cruz FICHERO .LED"; //TODO: SENEN --> Cambiar despues de pruebas
+    document.getElementById("textoInfo").innerHTML = "Fin de la animación";
+    playSequence();
   }
-
 }
 
 function ficheros() {
