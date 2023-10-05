@@ -82,13 +82,13 @@ window.onload = function () {
 
 
 function playAnimacion() {
-  finSimulacion();
+  //finSimulacion();
   stopAnimacion();
-  playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
+  //playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia"; 
 
   //SENEN --> Coge archivo .led de existir alguno y lee contenido
-  /**
+  
   let myfile = document.getElementById("fileSelector").files[0];
   let reader = new FileReader();
   reader.readAsArrayBuffer(myfile);
@@ -103,6 +103,7 @@ function playAnimacion() {
     //Lanza función dibujar la animación despues de cargar fichero led */
     frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
   };
+}
 
 // ADD SENEN ##################################################################
 // Función eliminar fichero .led seleccionado para pruebas error mascara
@@ -384,9 +385,10 @@ function myLoop(jsonData) {
       //Si se ha llegado al final de la secuencia, vuelta al principio
       if (z >= actions.length) {
         z = 0;
+        //playAnimacion();
       }
     }
-
+    
     //Mientras no se pare, se continua de forma ciclica
     if (!end) {
       myLoop(jsonData);
