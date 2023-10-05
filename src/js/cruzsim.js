@@ -341,7 +341,7 @@ function playSequence () {
     readerLedFile.onload = function (e) {
       framesNum = (myfileLed.size - 1) / BLOCK_SIZE;
       var arrayBufferLed = reader.result
-      aniBytesLed = new Uint8Array(arrayBufferLed); /** @param {array} aniBytesLedguarda el contenido del ficheo .led   */ /**
+      aniBytesLed = new Uint8Array(arrayBufferLed); led  
       frameCounter = 0;
       bytesOffet = 0;
       stop = false;
