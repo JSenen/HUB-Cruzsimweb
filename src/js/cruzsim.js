@@ -85,8 +85,10 @@ function playAnimacion() {
   finSimulacion();
   stopAnimacion();
   playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
-  document.getElementById("textoInfo").innerHTML = "Inicio secuencia"; //SENEN--> Colocamos txt secuencia para distinguirlo de animacion led
+  document.getElementById("textoInfo").innerHTML = "Inicio secuencia"; 
+
   //SENEN --> Coge archivo .led de existir alguno y lee contenido
+  /**
   let myfile = document.getElementById("fileSelector").files[0];
   let reader = new FileReader();
   reader.readAsArrayBuffer(myfile);
@@ -98,10 +100,10 @@ function playAnimacion() {
     frameCounter = 0;
     bytesOffet = 0;
     stop = false;
-    //Lanza función dibujar la animación despues de cargar fichero led 
+    //Lanza función dibujar la animación despues de cargar fichero led */
     frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
   };
-}
+
 // ADD SENEN ##################################################################
 // Función eliminar fichero .led seleccionado para pruebas error mascara
 function limpiarCampo() {
@@ -234,12 +236,12 @@ function dibujarAnimacion() {
   frameCounter++;
 
   //SENEN --> Configura el próximo intervalo si no se ha detenido
-  if (frameCounter < framesNum && !stop) {
+  frameCounter++;
+  if ((frameCounter < framesNum) && (stop == false)) {
     frameControl = setInterval(dibujarAnimacion, framePause);
   }
   else {
-    document.getElementById("textoInfo").innerHTML = "Fin de la animación";
-    playSequence();
+    document.getElementById("textoInfo").innerHTML = "Fin animación cruz.";
   }
 }
 
@@ -325,10 +327,29 @@ function displayAnimation() {
  * resetea valores y empieza el bucle que mostrara las animaciones
  */
 function playSequence () {
-  document.getElementById("textoInfo").innerHTML = "Inicio simulación cruz.";
+  document.getElementById("textoInfo").innerHTML = "Inicio simulación creada.";
 
   var fileInput = document.getElementById('fileSelectorCrossMask');
   var file = fileInput.files[0]; // Obtiene el primer archivo seleccionado
+
+  /**Añadimos fichero .led */
+  /**
+  let myfileLed = document.getElementById("fileSelector").files[0];
+    let readerLedFile = new FileReader();
+    readerLedFile.readAsArrayBuffer(myfileLed);
+  
+    readerLedFile.onload = function (e) {
+      framesNum = (myfileLed.size - 1) / BLOCK_SIZE;
+      var arrayBufferLed = reader.result
+      aniBytesLed = new Uint8Array(arrayBufferLed); /** @param {array} aniBytesLedguarda el contenido del ficheo .led   */ /**
+      frameCounter = 0;
+      bytesOffet = 0;
+      stop = false;
+    }
+
+      // Agrega los datos .led al objeto jsonData
+      jsonData.ledData = aniBytesLed;
+    */
 
   var reader = new FileReader();
   reader.readAsText(file);
@@ -448,15 +469,21 @@ function showAction(action, jsonData) {
       break;
     //TODO: SENEN--> En esta caso debería cargar aquí la animación
     case "Animación":
-      mensaje = action.parameters.message;
+      // Cargar el archivo .led aquí
+      let ledFile = null; // Inicialmente no se carga ningún archivo
+
+      // Verificar si el archivo .led se ha seleccionado
+      if (document.getElementById("fileSelector").files.length > 0) {
+        ledFile = document.getElementById("fileSelector").files[0];
+      } 
       break;
 
     default:
       mensaje = "LA MEJOR FARMACIA";
   }
-
+  /** @param {*} ledFile El archivo .led cargado en la secuencia */
   //Con los parametros, se procede a mostrar 
-  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led);
+  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led); 
 }
 
 
@@ -626,7 +653,8 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
   cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
   
-
+  //================= SELECTION ANIMACION FICHERO LED =====================
+  
 
   //================== SELECCION DE TIPOGRAFIA A UTILIZAR ==================
   var font;

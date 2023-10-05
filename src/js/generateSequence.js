@@ -1,7 +1,9 @@
 let count=0;
 let id=0;
+/** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
-var formJSON;
+var formJSON; 
+
 
 function addAction() {
     newRow = document.createElement('tr');
@@ -27,6 +29,11 @@ function addAction() {
       <button type="button" onclick="toggleDropdown(this)">Mostrar opciones</button>
       <div class="dropdown" style="position: absolute; display: none;">
         <div class="dropdown-content">
+        <div></div>
+        <label for="fileSelector">Animacion LED</label>
+        <div></div>
+      
+            <input type=file id=fileSelector accept=".led">
 
           <div class="guia">
             <label for="message-${count}">Texto</label>
