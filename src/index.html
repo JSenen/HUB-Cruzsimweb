@@ -22,7 +22,7 @@
     </header> 
 
     <main>
-
+      <!-- SECCION SIMULADOR -->
       <div id="seccion1">
         <!-- <button class="button1 bouncy" onclick="inicioSimulacion()">Inicio</button>
         <button class="button1 bouncy" style="animation-delay:0.07s" onclick="finSimulacion()">Fin</button> -->
@@ -30,11 +30,7 @@
         <button class="button1 bouncy" style="animation-delay:0.21s" onclick="stopAnimacion()">&#9209; Stop</button>  <!-- SENEN: &#9209 Unicode Stop--> 
         <button class="button1 bouncy" style="animation-delay:0.28s" onclick="displaySequence()">Create sequence</button>
         <button class="button1 bouncy" style="animation-delay:0.35s" onclick="downloadSequence()">Download sequence</button>
-        <label for="fileSelector">Select animation</label>
-        <!-- ADD SENEN ----------------------------------------------------------->
-        <button onclick="limpiarCampo()">Limpiar</button>
-        <!-- FINISH ADD----------------------------------------------------------->
-        <input type=file id=fileSelector accept=".led">
+        
         <label for="fileSelectorCrossMask">Select mask</label>
         <input type=file id=fileSelectorCrossMask accept=".json">
         
@@ -42,7 +38,7 @@
   
         <p id="textoInfo"></p>
       </div>
-  
+      <!-- SECCION CREAR SECUENCIA -->
       <div id="seccion2" style="display:none;">
         <section class="seqForm">
           <h2>Creación de secuencia</h2>
@@ -96,7 +92,19 @@
                 </tbody>
               </table>
             </div>
-
+            <div></div>
+            <div>
+              <label for="fileSelector">Select animation</label>
+              <div></div>
+            
+            <input type=file id=fileSelector accept=".led">
+            <!-- ADD SENEN ----------------------------------------------------------->
+            <button onclick="limpiarCampo();">Limpiar</button>
+            <!-- FINISH ADD----------------------------------------------------------->
+            <!-- TODO: Que al pulsar limpiar se quede en la Seccion 2-->
+            </div>
+            <div></div>
+            
             <button type="submit">Crear secuencia</button>
           </form>
           <button onclick="displayAnimation()">Return</button>
