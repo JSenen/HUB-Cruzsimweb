@@ -29,12 +29,7 @@ function addAction() {
       <button type="button" onclick="toggleDropdown(this)">Mostrar opciones</button>
       <div class="dropdown" style="position: absolute; display: none;">
         <div class="dropdown-content">
-        <div></div>
-        <label for="fileSelector">Animacion LED</label>
-        <div></div>
-      
-            <input type=file id=fileSelector accept=".led">
-
+        
           <div class="guia">
             <label for="message-${count}">Texto</label>
             <input type="text" id="message-${count}" placeholder="Opcional si no es tipo Texto">
@@ -241,6 +236,10 @@ function addAction() {
           </div>
         </div>
       </div>
+    </td>
+    <td>
+      <input type=file id=fileSelector accept=".led">
+        <button onclick="limpiarCampo();">Limpiar</button>
     </td>
     <td><button type="button" onclick="removeAction('row-${count}')" class="delete-btn">Delete</button></td>
     `;
