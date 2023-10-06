@@ -1,5 +1,6 @@
 let count=0;
 let id=0;
+let selectedFile = null;
 /** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
 var formJSON; 
@@ -358,29 +359,32 @@ function handleFormSubmit(event) {
 
             }
             //Columna de la subida del fichero
-            else if( index == 3) {
+            // Columna de la subida del fichero
+            if (index === 3) {
+              const inputElement = cell.querySelector('input[type="file"]');
+                if (inputElement.files.length > 0) {
+                  const selectedFile = inputElement.files[0];
+                  const reader = new FileReader();
+                  reader.readAsDataURL(selectedFile);
 
-              // Procesar la tercera celda
-            inputElement = cell.querySelector('input[type="file"]');
-            if (inputElement.files.length > 0) {
-              // Verificar si se ha seleccionado un archivo
-              // Obtener la ruta del archivo seleccionado
-              const filePathAnimationLed = inputElement.files[0].name; // Puede usarse .name o .path según tus necesidades
-              filePathAnimation = filePathAnimationLed;
-              rowData['animation'] = filePathAnimation;
-          } else {
-              filePathAnimation = ''; // Si no se seleccionó ningún archivo
-
-              rowData['animation'] = '';
-          }
-
+                  reader.onload = function(e) {
+                    const fileData = e.target.result.split(',')[1]; // Obtener los datos en base64
+                    rowData['animation'] = {
+                      fileName: selectedFile.name,
+                      fileData: fileData // Almacenar los datos del archivo en base64
+                    };
+                    actions.push(rowData); // Agregar rowData al arreglo actions
+                  };
+                } else {
+                  rowData['animation'] = null;
+                  actions.push(rowData); // Agregar rowData al arreglo actions
+                }
             }
-          
           });
         
           actions.push(rowData);
     });
-
+   
     formJSON.actions = actions;
   
     from_time = formJSON["from-time"];
@@ -393,7 +397,7 @@ function handleFormSubmit(event) {
     formJSON.from_time = from_time;
     formJSON.to_time = to_time;
 
-    // Wrap the formJSON object inside the "sequences" property
+    // Creamos objeto formJSON con la propiedad sequences
     formJSON = { "sequences": formJSON };
     
     seccion1.style.display = "block";

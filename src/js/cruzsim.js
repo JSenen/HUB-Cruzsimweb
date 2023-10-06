@@ -81,29 +81,22 @@ window.onload = function () {
 };
 
 
-function playAnimacion() {
-  finSimulacion();
-  stopAnimacion();
-  playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
+function playAnimacion(fileName, fileData) {
+  //finSimulacion();
+  //stopAnimacion();
+  //playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
   document.getElementById("textoInfo").innerHTML = "LED"; 
 
-  //SENEN --> Coge archivo .led de existir alguno y lee contenido
-  
-  let myfile = document.getElementById("fileSelector").files[0];
-  let reader = new FileReader();
-  reader.readAsArrayBuffer(myfile);
-
-  reader.onload = function (e) {
-    framesNum = (myfile.size - 1) / BLOCK_SIZE;
-    var arrayBuffer = reader.result
-    aniBytes = new Uint8Array(arrayBuffer);
-    frameCounter = 0;
-    bytesOffet = 0;
-    stop = false;
-    //Lanza función dibujar la animación despues de cargar fichero led */
-    frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
+  //SENEN --> Lee el contenido del archivo .led proporcionado en formato base64
+  aniBytes = new Uint8Array(atob(fileData).split("").map(function(c) { return c.charCodeAt(0); }));
+  framesNum = aniBytes.length / BLOCK_SIZE;
+  frameCounter = 0;
+  bytesOffet = 0;
+  stop = false;
+  //Lanza función para dibujar la animación después de cargar el archivo .led
+  frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
   };
-}
+
 
 function dibujarAnimacion() {
   var x = 0;
@@ -115,7 +108,7 @@ function dibujarAnimacion() {
   var LEDColor3;
   var LEDColor4;
 
-  // SENEN--> Verifica si se han ejecutado todos los cuadros
+  // Verifica si se han ejecutado todos los cuadros
   if (frameCounter >= framesNum || stop) {
     clearInterval(frameControl);
     document.getElementById("textoInfo").innerHTML = "Fin de la animación"; // Mostrar un mensaje de finalización
@@ -390,7 +383,7 @@ function showAction(action, jsonData) {
   var tipography = action.parameters.tipografia;                //Tipografia a utilizar
   var color = action.parameters.color;                          //Color seleccionado
   var led = action.parameters.led;                             //Fila a partir de donde se mostrara el mensaje 
-  var pathFileLedSelected = filePathAnimation;                   //Ruta al archivo led selecionado
+  var pathFileLedSelected = action.parameters.animation         //Ruta al archivo led selecionado
   /** @param {string} pathFileLedSelected Ruta al archivo led seleccionado*/
 
   espera = 0; //Tiempo de espera entre acciones
@@ -436,17 +429,23 @@ function showAction(action, jsonData) {
       mensaje = action.parameters.message;
       break;
     
-      case "animation":
-      //TODO: AQUI DEBE CARGAR LA ANIMACION LED EN LA SECUENCIA
-      mensaje = "LED";
-      break;
+    case "animation":
+        // Verificar si se incluyó la animación en el objeto JSON
+        if (action.animation) {
+          // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
+          playAnimacion(action.animation.fileName, action.animation.fileData);
+        } else {
+          // En caso de que no haya animación, simplemente establece el mensaje
+          mensaje = "No LED"; //TODO eliminar tras pruebas
+        }
+    break;
 
     default:
       mensaje = "LA MEJOR FARMACIA";
   }
   /** @param {*} ledFile El archivo .led cargado en la secuencia */
   //Con los parametros, se procede a mostrar 
-  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, pathFileLedSelected); 
+  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led); 
 }
 
 
