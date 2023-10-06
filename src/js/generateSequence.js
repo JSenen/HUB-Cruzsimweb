@@ -3,6 +3,7 @@ let id=0;
 /** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
 var formJSON; 
+var filePathAnimation; /** @param {path} filePathAnimation variable guarda la ruta al fichero led*/
 
 
 function addAction() {
@@ -22,7 +23,7 @@ function addAction() {
             <option value"humidity">Humedad</option>
             <option value"date">Fecha</option>
             <option value"text">Texto</option>
-            <option value"animation">Animación</option>
+            <option value"animation">animation</option>
         </select>
     </td>
     <td>
@@ -259,7 +260,7 @@ function toggleDropdown(button) {
 }
 
   
-
+/** Compone la secuencia */
 function handleFormSubmit(event) {
     event.preventDefault();
   
@@ -270,10 +271,10 @@ function handleFormSubmit(event) {
     // get the state of the checkbox
     defaultCheckbox = document.querySelector('input[name="default"]');
     formJSON.default = defaultCheckbox.checked;
-  
+    // Busca en las filas 
     tableRows = document.querySelectorAll('#table tbody tr');
-    actions = [];
-
+    actions = []; //Array para almacenar datos de la fila
+    
     tableRows.forEach(row => {
         rowData = {};
         cells = row.querySelectorAll('td');
@@ -356,13 +357,32 @@ function handleFormSubmit(event) {
               rowData['parameters'] = paramData;//parameters;
 
             }
+            //Columna de la subida del fichero
+            else if( index == 3) {
+
+              // Procesar la tercera celda
+            inputElement = cell.querySelector('input[type="file"]');
+            if (inputElement.files.length > 0) {
+              // Verificar si se ha seleccionado un archivo
+              // Obtener la ruta del archivo seleccionado
+              const filePathAnimationLed = inputElement.files[0].path; // Puede usarse .name o .path según tus necesidades
+              filePathAnimation = filePathAnimationLed;
+              rowData['animation'] = filePathAnimation;
+          } else {
+              filePathAnimation = ''; // Si no se seleccionó ningún archivo
+
+              rowData['animation'] = '';
+          }
+
+            }
+          
           });
         
           actions.push(rowData);
     });
 
     formJSON.actions = actions;
-
+  
     from_time = formJSON["from-time"];
     to_time = formJSON["to-time"];
 

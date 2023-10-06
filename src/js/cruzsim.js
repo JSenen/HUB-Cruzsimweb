@@ -82,10 +82,10 @@ window.onload = function () {
 
 
 function playAnimacion() {
-  //finSimulacion();
+  finSimulacion();
   stopAnimacion();
-  //playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
-  document.getElementById("textoInfo").innerHTML = "Inicio secuencia"; 
+  playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
+  document.getElementById("textoInfo").innerHTML = "LED"; 
 
   //SENEN --> Coge archivo .led de existir alguno y lee contenido
   
@@ -220,7 +220,7 @@ function dibujarAnimacion() {
   frameCounter++;
 
   //SENEN --> Configura el próximo intervalo si no se ha detenido
-  frameCounter++;
+  
   if ((frameCounter < framesNum) && (stop == false)) {
     frameControl = setInterval(dibujarAnimacion, framePause);
   }
@@ -310,31 +310,11 @@ function displayAnimation() {
  * Funcion que ejecuta la secuencia una vez configurada. Lee el json que da forma a la cruz,
  * resetea valores y empieza el bucle que mostrara las animaciones
  */
-function playSequence () {
-  document.getElementById("textoInfo").innerHTML = "Inicio simulación creada.";
-
+function  playSequence () {
+  document.getElementById("textoInfo").innerHTML = "Inicio simulación secuencia creada.";
+  //Almacena la mascara selecionada
   var fileInput = document.getElementById('fileSelectorCrossMask');
   var file = fileInput.files[0]; // Obtiene el primer archivo seleccionado
-
-  /**Añadimos fichero .led */
-  /**
-  let myfileLed = document.getElementById("fileSelector").files[0];
-    let readerLedFile = new FileReader();
-    readerLedFile.readAsArrayBuffer(myfileLed);
-  
-    readerLedFile.onload = function (e) {
-      framesNum = (myfileLed.size - 1) / BLOCK_SIZE;
-      var arrayBufferLed = reader.result
-      aniBytesLed = new Uint8Array(arrayBufferLed); led  
-      frameCounter = 0;
-      bytesOffet = 0;
-      stop = false;
-    }
-
-      // Agrega los datos .led al objeto jsonData
-      jsonData.ledData = aniBytesLed;
-    */
-
   var reader = new FileReader();
   reader.readAsText(file);
 
@@ -363,12 +343,13 @@ function myLoop(jsonData) {
   setTimeout(function() {
     if (fin) {
       showAction(actions[z], jsonData);
+      
       //Realizamos siguiente accion
       z++;
       //Si se ha llegado al final de la secuencia, vuelta al principio
       if (z >= actions.length) {
         z = 0;
-        //playAnimacion();
+        
       }
     }
     
@@ -408,7 +389,8 @@ function showAction(action, jsonData) {
 
   var tipography = action.parameters.tipografia;                //Tipografia a utilizar
   var color = action.parameters.color;                          //Color seleccionado
-  var led = action.parameters.led;                              //Fila a partir de donde se mostrara el mensaje
+  var led = action.parameters.led;                             //Fila a partir de donde se mostrara el mensaje 
+  
 
   espera = 0; //Tiempo de espera entre acciones
 
@@ -453,14 +435,9 @@ function showAction(action, jsonData) {
       mensaje = action.parameters.message;
       break;
     //TODO: SENEN--> En esta caso debería cargar aquí la animación
-    case "Animación":
+    case "animation":
       // Cargar el archivo .led aquí
-      let ledFile = null; // Inicialmente no se carga ningún archivo
-
-      // Verificar si el archivo .led se ha seleccionado
-      if (document.getElementById("fileSelector").files.length > 0) {
-        ledFile = document.getElementById("fileSelector").files[0];
-      } 
+      mensaje = "LED--LED"
       break;
 
     default:
@@ -632,7 +609,7 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
 
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
-  document.getElementById("textoInfo").innerHTML = "Inicio secuencia.";
+  document.getElementById("textoInfo").innerHTML = "Inicio secuencia creada.";
   
   //Inidcamos cuales son los parametros de altura y longitud de la cruz para poder trabajar con ellos.
   cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
