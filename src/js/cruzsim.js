@@ -390,7 +390,8 @@ function showAction(action, jsonData) {
   var tipography = action.parameters.tipografia;                //Tipografia a utilizar
   var color = action.parameters.color;                          //Color seleccionado
   var led = action.parameters.led;                             //Fila a partir de donde se mostrara el mensaje 
-  
+  var pathFileLedSelected = filePathAnimation;                   //Ruta al archivo led selecionado
+  /** @param {string} pathFileLedSelected Ruta al archivo led seleccionado*/
 
   espera = 0; //Tiempo de espera entre acciones
 
@@ -434,10 +435,10 @@ function showAction(action, jsonData) {
     case "Texto":
       mensaje = action.parameters.message;
       break;
-    //TODO: SENEN--> En esta caso debería cargar aquí la animación
-    case "animation":
-      // Cargar el archivo .led aquí
-      mensaje = "LED--LED"
+    
+      case "animation":
+      //TODO: AQUI DEBE CARGAR LA ANIMACION LED EN LA SECUENCIA
+      mensaje = "LED";
       break;
 
     default:
@@ -445,7 +446,7 @@ function showAction(action, jsonData) {
   }
   /** @param {*} ledFile El archivo .led cargado en la secuencia */
   //Con los parametros, se procede a mostrar 
-  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led); 
+  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, pathFileLedSelected); 
 }
 
 
@@ -605,7 +606,7 @@ function findValue(array, num) {
  * @param {int} action_color color en que mostrar el texto en caso de que la cruz lo permita
  * @param {int} action_led numero de filas de led a partir del cual mostrar el mensaje (Este valor viene derivado del valor de FILA)
  */
-function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led){
+function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led,pathFileLedSelected){
 
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
@@ -726,7 +727,7 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   
 
 
-  //================== DIBUJOS PANEL SUPERIOR Y INFERIOR ==================
+  //================== DIBUJOS PANEL SUPERIOR E INFERIOR ==================
   dibujarDib((cross_width/2 + topPanel_X/2 - 1)*10, (topEdge+topPanel_Y-1)*10, eval(action_top_draw), action_color, "top");// Dibuja la cruz de arriba
   dibujarDib((cross_width/2 + bottomPanel_X/2 - 1)*10 , (cross_height-bottomEdge-1)*10, eval(action_bottom_draw), action_color, "bottom");// Dibuja la cruz de abajo
 

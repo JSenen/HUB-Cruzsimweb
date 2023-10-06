@@ -365,7 +365,7 @@ function handleFormSubmit(event) {
             if (inputElement.files.length > 0) {
               // Verificar si se ha seleccionado un archivo
               // Obtener la ruta del archivo seleccionado
-              const filePathAnimationLed = inputElement.files[0].path; // Puede usarse .name o .path según tus necesidades
+              const filePathAnimationLed = inputElement.files[0].name; // Puede usarse .name o .path según tus necesidades
               filePathAnimation = filePathAnimationLed;
               rowData['animation'] = filePathAnimation;
           } else {
