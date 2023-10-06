@@ -82,8 +82,8 @@ window.onload = function () {
 
 
 function playAnimacion(fileName, fileData) {
-  //finSimulacion();
-  //stopAnimacion();
+  finSimulacion();
+  stopAnimacion();
   //playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
   document.getElementById("textoInfo").innerHTML = "LED"; 
 
@@ -97,7 +97,7 @@ function playAnimacion(fileName, fileData) {
   frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
   };
 
-
+// ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
 function dibujarAnimacion() {
   var x = 0;
   var y = 0;
@@ -111,7 +111,9 @@ function dibujarAnimacion() {
   // Verifica si se han ejecutado todos los cuadros
   if (frameCounter >= framesNum || stop) {
     clearInterval(frameControl);
-    document.getElementById("textoInfo").innerHTML = "Fin de la animación"; // Mostrar un mensaje de finalización
+    isPlayingAnimation = false;
+    document.getElementById("textoInfo").innerHTML = "Fin de la animación LED"; // Mostrar un mensaje de finalización
+    myLoop(jsonData);
     return;
   }
 
@@ -282,19 +284,6 @@ function displayAnimation() {
 }
 
 
-
-//#############################################################################################################################################
-//#############################################################################################################################################
-//#############################################################################################################################################
-//#############################################################################################################################################
-//#############################################################################################################################################
-//#############################################################################################################################################
-//#############################################################################################################################################
-//#############################################################################################################################################
-
-
-
-
 /**************************************************************************************/
 //                          FUNCIONES DE EJECUTAR SECUENCIAS
 /**************************************************************************************/
@@ -334,23 +323,31 @@ function  playSequence () {
  */
 function myLoop(jsonData) {        
   setTimeout(function() {
+    // Verifica si la acción actual es una animación antes de verificar fin
+    if (actions[z].type === "animation") {
+      isPlayingAnimation = true;
+    } else {
+      isPlayingAnimation = false;
+    }
+
     if (fin) {
       showAction(actions[z], jsonData);
       
-      //Realizamos siguiente accion
+      // Realizamos siguiente acción
       z++;
-      //Si se ha llegado al final de la secuencia, vuelta al principio
+      // Si se ha llegado al final de la secuencia, vuelta al principio
       if (z >= actions.length) {
         z = 0;
-        
       }
+
     }
     
-    //Mientras no se pare, se continua de forma ciclica
+    // Mientras no se pare y no se esté reproduciendo una animación, se continua de forma cíclica
     if (!end) {
       myLoop(jsonData);
-    }                       
-
+    } else {
+      isPlayingAnimation = false; // Controlar restablecer la bandera si se detiene la secuencia
+    }
   }, espera) // Espera entre acciones
 }
 
@@ -383,8 +380,6 @@ function showAction(action, jsonData) {
   var tipography = action.parameters.tipografia;                //Tipografia a utilizar
   var color = action.parameters.color;                          //Color seleccionado
   var led = action.parameters.led;                             //Fila a partir de donde se mostrara el mensaje 
-  var pathFileLedSelected = action.parameters.animation         //Ruta al archivo led selecionado
-  /** @param {string} pathFileLedSelected Ruta al archivo led seleccionado*/
 
   espera = 0; //Tiempo de espera entre acciones
 
@@ -443,7 +438,7 @@ function showAction(action, jsonData) {
     default:
       mensaje = "LA MEJOR FARMACIA";
   }
-  /** @param {*} ledFile El archivo .led cargado en la secuencia */
+
   //Con los parametros, se procede a mostrar 
   animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led); 
 }

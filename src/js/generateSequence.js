@@ -358,7 +358,7 @@ function handleFormSubmit(event) {
               rowData['parameters'] = paramData;//parameters;
 
             }
-            //Columna de la subida del fichero
+
             // Columna de la subida del fichero
             if (index === 3) {
               const inputElement = cell.querySelector('input[type="file"]');
