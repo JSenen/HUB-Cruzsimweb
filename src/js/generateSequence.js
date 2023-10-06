@@ -239,7 +239,6 @@ function addAction() {
     </td>
     <td>
       <input type=file id=fileSelector accept=".led">
-        <button onclick="limpiarCampo();">Limpiar</button>
     </td>
     <td><button type="button" onclick="removeAction('row-${count}')" class="delete-btn">Delete</button></td>
     `;
