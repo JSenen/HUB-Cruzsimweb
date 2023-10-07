@@ -4,7 +4,7 @@ let selectedFile = null;
 /** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
 var formJSON; 
-var filePathAnimation; /** @param {path} filePathAnimation variable guarda la ruta al fichero led*/
+//var filePathAnimation; /** @param {path} filePathAnimation variable guarda la ruta al fichero led*/
 
 
 function addAction() {
@@ -384,7 +384,7 @@ function handleFormSubmit(event) {
         
           actions.push(rowData);
     });
-   
+    
     formJSON.actions = actions;
   
     from_time = formJSON["from-time"];

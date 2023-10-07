@@ -45,6 +45,7 @@ var scape_row;
 var bucle;
 var timeoutId;
 
+
 //SENEN --> Código al cargar la página
 window.onload = function () {
   document.getElementById("textoInfo").innerHTML = "inicio onLoad";
@@ -84,18 +85,25 @@ window.onload = function () {
 function playAnimacion(fileName, fileData) {
   finSimulacion();
   stopAnimacion();
-  //playSequence(); //SENEN --> Añadimos la función para que podamos reanudar la secuencia desde el PLay y no tener que definir secuancia otravez
-  document.getElementById("textoInfo").innerHTML = "LED"; 
+  document.getElementById("textoInfo").innerHTML = "LED";
 
   //SENEN --> Lee el contenido del archivo .led proporcionado en formato base64
   aniBytes = new Uint8Array(atob(fileData).split("").map(function(c) { return c.charCodeAt(0); }));
-  framesNum = aniBytes.length / BLOCK_SIZE;
+  console.log(aniBytes);
+  framesNum = Math.ceil(aniBytes.length / BLOCK_SIZE); //Redondeo para que framesCounter pueda contar
   frameCounter = 0;
   bytesOffet = 0;
   stop = false;
   //Lanza función para dibujar la animación después de cargar el archivo .led
+  console.log("LLama a dibujar animacion")
   frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
-  };
+
+  
+  setTimeout(function () {
+        z++;
+        showAction(action[z],jsonData);
+  }, framesNum * delayInicioAnimación); // Suponiendo que el número de cuadros es conocido
+}
 
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
 function dibujarAnimacion() {
@@ -107,14 +115,32 @@ function dibujarAnimacion() {
   var LEDColor2;
   var LEDColor3;
   var LEDColor4;
+  var jsonData;
 
+  console.log("frameCounter:", frameCounter);
+  console.log("framesNum:", framesNum);
+  console.log("stop:", stop);
+  console.log("Z",z);
+  
   // Verifica si se han ejecutado todos los cuadros
-  if (frameCounter >= framesNum || stop) {
+  if (frameCounter >= framesNum || stop ) {
+    console.log("frameCounter >= framesNum")
     clearInterval(frameControl);
-    isPlayingAnimation = false;
     document.getElementById("textoInfo").innerHTML = "Fin de la animación LED"; // Mostrar un mensaje de finalización
+    if (z < action.length-1) {
+      z++;
+      console.log("incremento z ++ y llamada myloop(), z =", z);
+      console.log("action.length =", action.length);
+      showAction(action[z],jsonData);
+    } else {
+      z = 0;
+      console.log("z se restableció a 0");
+      showAction(action[0],jsonData);
+    }
+    
+    // Agregar la llamada a myLoop para continuar
     myLoop(jsonData);
-    return;
+
   }
 
   // leer pausa
@@ -216,11 +242,13 @@ function dibujarAnimacion() {
 
   //SENEN --> Configura el próximo intervalo si no se ha detenido
   
-  if ((frameCounter < framesNum) && (stop == false)) {
+  if (frameCounter < framesNum) {
+    console.log("frameCounter <= framesNum")
     frameControl = setInterval(dibujarAnimacion, framePause);
+    stop = false;
   }
   else {
-    document.getElementById("textoInfo").innerHTML = "Fin animación cruz.";
+    stop = true;
   }
 }
 
@@ -323,16 +351,9 @@ function  playSequence () {
  */
 function myLoop(jsonData) {        
   setTimeout(function() {
-    // Verifica si la acción actual es una animación antes de verificar fin
-    if (actions[z].type === "animation") {
-      isPlayingAnimation = true;
-    } else {
-      isPlayingAnimation = false;
-    }
-
+  
     if (fin) {
       showAction(actions[z], jsonData);
-      
       // Realizamos siguiente acción
       z++;
       // Si se ha llegado al final de la secuencia, vuelta al principio
@@ -346,7 +367,7 @@ function myLoop(jsonData) {
     if (!end) {
       myLoop(jsonData);
     } else {
-      isPlayingAnimation = false; // Controlar restablecer la bandera si se detiene la secuencia
+      isAnimatig = false; // Controlar restablecer la bandera si se detiene la secuencia
     }
   }, espera) // Espera entre acciones
 }
@@ -380,7 +401,7 @@ function showAction(action, jsonData) {
   var tipography = action.parameters.tipografia;                //Tipografia a utilizar
   var color = action.parameters.color;                          //Color seleccionado
   var led = action.parameters.led;                             //Fila a partir de donde se mostrara el mensaje 
-
+  
   espera = 0; //Tiempo de espera entre acciones
 
   //MENSAJES A MOSTRAR (EN ESTE CASO ESTAN PUESTOS EN CODIGO PERO DEBERIAN VENIR COMO PARAMETRO)
@@ -424,17 +445,19 @@ function showAction(action, jsonData) {
       mensaje = action.parameters.message;
       break;
     
-    case "animation":
-        // Verificar si se incluyó la animación en el objeto JSON
-        if (action.animation) {
-          // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
-          playAnimacion(action.animation.fileName, action.animation.fileData);
-        } else {
-          // En caso de que no haya animación, simplemente establece el mensaje
-          mensaje = "No LED"; //TODO eliminar tras pruebas
-        }
-    break;
-
+      case "animation":
+          console.log("Ve que es una animacion")
+          // Verificar si se incluyó la animación en el objeto JSON
+          if (action.animation) {
+            // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
+            console.log("Llama a funcion playAnimacion y le pasa fichero")
+            playAnimacion(action.animation.fileName, action.animation.fileData);
+          } else {
+            // En caso de que no haya animación, simplemente establece el mensaje
+            mensaje = "No LED"; //TODO eliminar tras pruebas
+          }
+                break;
+  
     default:
       mensaje = "LA MEJOR FARMACIA";
   }
@@ -600,7 +623,7 @@ function findValue(array, num) {
  * @param {int} action_color color en que mostrar el texto en caso de que la cruz lo permita
  * @param {int} action_led numero de filas de led a partir del cual mostrar el mensaje (Este valor viene derivado del valor de FILA)
  */
-function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led,pathFileLedSelected){
+function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led){
 
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
