@@ -1,7 +1,11 @@
 let count=0;
 let id=0;
+let selectedFile = null;
+/** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
-var formJSON;
+var formJSON; 
+//var filePathAnimation; /** @param {path} filePathAnimation variable guarda la ruta al fichero led*/
+
 
 function addAction() {
     newRow = document.createElement('tr');
@@ -20,14 +24,14 @@ function addAction() {
             <option value"humidity">Humedad</option>
             <option value"date">Fecha</option>
             <option value"text">Texto</option>
-            <option value"animation">Animación</option>
+            <option value"animation">animation</option>
         </select>
     </td>
     <td>
       <button type="button" onclick="toggleDropdown(this)">Mostrar opciones</button>
       <div class="dropdown" style="position: absolute; display: none;">
         <div class="dropdown-content">
-
+        
           <div class="guia">
             <label for="message-${count}">Texto</label>
             <input type="text" id="message-${count}" placeholder="Opcional si no es tipo Texto">
@@ -235,6 +239,9 @@ function addAction() {
         </div>
       </div>
     </td>
+    <td>
+      <input type="file" id="fileSelector" accept=".led">
+    </td>
     <td><button type="button" onclick="removeAction('row-${count}')" class="delete-btn">Delete</button></td>
     `;
     table = document.getElementById('table');
@@ -254,7 +261,7 @@ function toggleDropdown(button) {
 }
 
   
-
+/** Compone la secuencia */
 function handleFormSubmit(event) {
     event.preventDefault();
   
@@ -265,10 +272,10 @@ function handleFormSubmit(event) {
     // get the state of the checkbox
     defaultCheckbox = document.querySelector('input[name="default"]');
     formJSON.default = defaultCheckbox.checked;
-  
+    // Busca en las filas 
     tableRows = document.querySelectorAll('#table tbody tr');
-    actions = [];
-
+    actions = []; //Array para almacenar datos de la fila
+    
     tableRows.forEach(row => {
         rowData = {};
         cells = row.querySelectorAll('td');
@@ -351,13 +358,35 @@ function handleFormSubmit(event) {
               rowData['parameters'] = paramData;//parameters;
 
             }
+
+            // Columna de la subida del fichero
+            if (index === 3) {
+              const inputElement = cell.querySelector('input[type="file"]');
+                if (inputElement.files.length > 0) {
+                  const selectedFile = inputElement.files[0];
+                  const reader = new FileReader();
+                  reader.readAsDataURL(selectedFile);
+
+                  reader.onload = function(e) {
+                    const fileData = e.target.result.split(',')[1]; // Obtener los datos en base64
+                    rowData['animation'] = {
+                      fileName: selectedFile.name,
+                      fileData: fileData // Almacenar los datos del archivo en base64
+                    };
+                    actions.push(rowData); // Agregar rowData al arreglo actions
+                  };
+                } else {
+                  rowData['animation'] = null;
+                  actions.push(rowData); // Agregar rowData al arreglo actions
+                }
+            }
           });
         
           actions.push(rowData);
     });
-
+    
     formJSON.actions = actions;
-
+  
     from_time = formJSON["from-time"];
     to_time = formJSON["to-time"];
 
@@ -368,7 +397,7 @@ function handleFormSubmit(event) {
     formJSON.from_time = from_time;
     formJSON.to_time = to_time;
 
-    // Wrap the formJSON object inside the "sequences" property
+    // Creamos objeto formJSON con la propiedad sequences
     formJSON = { "sequences": formJSON };
     
     seccion1.style.display = "block";
