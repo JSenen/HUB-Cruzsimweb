@@ -373,11 +373,11 @@ function handleFormSubmit(event) {
                       fileName: selectedFile.name,
                       fileData: fileData // Almacenar los datos del archivo en base64
                     };
-                    actions.push(rowData); // Agregar rowData al arreglo actions
+                   // actions.push(rowData); // Agregar rowData al arreglo actions
                   };
                 } else {
                   rowData['animation'] = null;
-                  actions.push(rowData); // Agregar rowData al arreglo actions
+                 // actions.push(rowData); // Agregar rowData al arreglo actions
                 }
             }
           });

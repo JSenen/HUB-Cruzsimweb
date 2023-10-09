@@ -245,6 +245,7 @@ function detenerAnimacionLED() {
 
     z = z + 1;
     console.log("detenerAnimacionLED() z < actions.length-1 , z =", z);
+    fin = true;
     playSequence();
   } else if (z > (actions.length)-1){
     fin = true;
@@ -473,6 +474,7 @@ function showAction(action, jsonData) {
     default:
       mensaje = "LA MEJOR FARMACIA";
   }
+ 
 
   //Con los parametros, se procede a mostrar 
   animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled, fileAnimation);
