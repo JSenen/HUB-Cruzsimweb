@@ -224,6 +224,28 @@ function dibujarAnimacion() {
       y += 10;
     }
   }
+  // =======  CANVAS SUPERPOSICION ANIMACION CUADRADOS EN LAS ESQUINAS =============== //
+   // Cuadrado superior izquierdo
+   ctx.fillStyle = "white"; // Establece el color a blanco
+   ctx.fillRect(0, 0, 211, 211); // Dibuja un cuadrado en la esquina superior izquierda
+ 
+   // Cuadrado superior derecho
+   ctx.fillRect(canvas.width - 210, 0, 210, 210); // Dibuja un cuadrado en la esquina superior derecha
+ 
+   // Cuadrado inferior izquierdo
+   ctx.fillRect(0, canvas.height - 210, 210, 210); // Dibuja un cuadrado en la esquina inferior izquierda
+ 
+   // Cuadrado inferior derecho
+   ctx.fillRect(canvas.width - 210, canvas.height - 210, 210, 210); // Dibuja un cuadrado en la esquina inferior derecha
+
+   //Cuadrado superior central
+   ctx.fillRect(211, 0, 140, 70);
+   //Cuadrado inferior central
+   ctx.fillRect((canvas.width - 140) / 2, canvas.height - 70, 140, 70);
+   // Cuadrado lateral central izquierdo
+    ctx.fillRect(0, (canvas.height - 140) / 2, 70, 140);
+  // Cuadrado lateral central derecho
+    ctx.fillRect(canvas.width - 70, (canvas.height - 140) / 2, 70, 140);
 
   frameCounter++;
 
@@ -308,6 +330,7 @@ function displaySequence() {
   stopAnimacion();
   seccion1.style.display = "none";
   seccion2.style.display = "block";
+
 }
 
 //Cerrar las opciones de crear secuencias 
@@ -454,7 +477,7 @@ function showAction(action, jsonData) {
       mensaje = action.parameters.message;
       break;
     //Caso de cargar animacion, carga el fichero .led seleccionado
-    case "animation":
+    case "Animación":
       console.log("Ve que es una animacion")
       // Verificar si se incluyó la animación en el objeto JSON
       if (action.animation) {

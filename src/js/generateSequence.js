@@ -4,12 +4,11 @@ let selectedFile = null;
 /** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
 var formJSON; 
-//var filePathAnimation; /** @param {path} filePathAnimation variable guarda la ruta al fichero led*/
-
 
 function addAction() {
     newRow = document.createElement('tr');
     newRow.setAttribute('id', `row-${count}`);
+    newRow.setAttribute('data-id', count); // Agrega un atributo data-id con el valor de count
     newRow.innerHTML = `
     <td>
       <label id="count" style="display: none;">${count}</label>
@@ -24,7 +23,7 @@ function addAction() {
             <option value"humidity">Humedad</option>
             <option value"date">Fecha</option>
             <option value"text">Texto</option>
-            <option value="animation">animation</option>
+            <option value="Animación">Animación</option>
         </select>
     </td>
     <td>
@@ -282,14 +281,11 @@ function handleFormSubmit(event) {
 
         cells.forEach((cell, index) => {
 
-            if (index === 0) {
-                countElement = cell.querySelector('label');
-                id = countElement.textContent;
-
-                rowData['_id'] = cell.querySelector('input').value;
-                
-
-            } else if (index === 1) {
+          if (index === 0) {
+            // Obtén el valor id desde el atributo data-id
+            id = row.getAttribute('data-id');
+            rowData['_id'] = cell.querySelector('input').value;
+          } else if (index === 1) {
                 selectElement = cell.querySelector('select');
                 selectedOption = selectElement.options[selectElement.selectedIndex];
                 rowData['type'] = selectedOption.value;
@@ -373,7 +369,6 @@ function handleFormSubmit(event) {
                       fileName: selectedFile.name,
                       fileData: fileData // Almacenar los datos del archivo en base64
                     };
-                   // actions.push(rowData); // Agregar rowData al arreglo actions
                   };
                 } else {
                   rowData['animation'] = null;
