@@ -464,7 +464,7 @@ function showAction(action, jsonData) {
         fileAnimation = {
           fileName: action.animation.fileName,
           fileData: action.animation.fileData
-        };
+        }; 
       } else {
         // En caso de que no haya animación, simplemente establece el mensaje
         mensaje = "No LED"; //TODO eliminar tras pruebas

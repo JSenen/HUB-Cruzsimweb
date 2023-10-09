@@ -24,7 +24,7 @@ function addAction() {
             <option value"humidity">Humedad</option>
             <option value"date">Fecha</option>
             <option value"text">Texto</option>
-            <option value"animation">animation</option>
+            <option value="animation">animation</option>
         </select>
     </td>
     <td>
@@ -240,7 +240,7 @@ function addAction() {
       </div>
     </td>
     <td>
-      <input type="file" id="fileSelector" accept=".led">
+      <input type="file" id="fileSelector-${count}" accept=".led">
     </td>
     <td><button type="button" onclick="removeAction('row-${count}')" class="delete-btn">Delete</button></td>
     `;
