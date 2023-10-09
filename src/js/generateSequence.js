@@ -383,6 +383,7 @@ function handleFormSubmit(event) {
           });
         
           actions.push(rowData);
+          console.log("ROW DATA GRABADO EN generatesequebce.js ----->",rowData );
     });
     
     formJSON.actions = actions;
