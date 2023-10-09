@@ -49,10 +49,10 @@ var animationled;
 var fileAnimation;
 var jsonData;
 
-//SENEN --> Código al cargar la página
+//Código al cargar la página
 window.onload = function () {
   document.getElementById("textoInfo").innerHTML = "inicio onLoad";
-  //SENEN --> Se crea el CANVAS en el cuerpo del documento
+// Se crea el CANVAS 560 x 560  en el cuerpo del documento
   canvas = document.createElement('canvas');
   canvas.width = 560;
   canvas.height = 560;
@@ -74,17 +74,16 @@ window.onload = function () {
   bmpBlanco.src = "../bmp/led_blanco_10.bmp";
 
 
-
+// Se obtiene una referencia al formulario HTML con la clase "seqForm" y se agrega un controlador de eventos para el evento de envío del formulario (submit).
   document.getElementById("textoInfo").innerHTML = "Iniciar secuencia.";
-  //SENEN --> Se obtiene una referencia al formulario HTML con la clase "seqForm" y se agrega un controlador de eventos para el evento de envío del formulario (submit).
-  //Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
+//Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
   form = document.querySelector('.seqForm');
   form.addEventListener('submit', handleFormSubmit);
   seccion1 = document.getElementById("seccion1");
   seccion2 = document.getElementById("seccion2");
 };
 
-
+//Funcion carga el fichero .led para procesarlo
 function playAnimacion(fileName, fileData) {
   //finSimulacion();
   //stopAnimacion();
@@ -100,15 +99,9 @@ function playAnimacion(fileName, fileData) {
   stop = false;
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("LLama a dibujar animacion")
-  //frameControl = setInterval(dibujarAnimacion, delayInicioAnimación);
+  //Ejecuta función despues de tiempo establecido por delayInicioAnimacion
   frameControl = setTimeout(dibujarAnimacion, delayInicioAnimación);
   detenerAnimacionLED();
-  /*
-  setTimeout(function () {
-        //z++;
-        showAction(action[z],jsonData);
-  }, framesNum * delayInicioAnimación); // Suponiendo que el número de cuadros es conocido
-  */
 }
 
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
@@ -125,7 +118,7 @@ function dibujarAnimacion() {
   console.log("frameCounter recibido:", frameCounter);
   console.log("framesNum establecido:", framesNum);
   console.log("stop:", stop);
-  console.log("Z",z);
+  console.log("Z Dibujar Animacion",z);
   
   // Verifica si se han ejecutado todos los cuadros
   if (frameCounter >= framesNum-1|| stop ) {
