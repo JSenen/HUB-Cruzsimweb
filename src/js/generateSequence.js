@@ -6,6 +6,7 @@ let selectedFile = null;
 var formJSON; 
 
 function addAction() {
+  console.log("addAction()");
     newRow = document.createElement('tr');
     newRow.setAttribute('id', `row-${count}`);
     newRow.setAttribute('data-id', count); // Agrega un atributo data-id con el valor de count
@@ -250,6 +251,7 @@ function addAction() {
 
 
 function removeAction(row_id) {
+  console.log("removeAction()");
     var row = document.getElementById(row_id);
     row.parentNode.removeChild(row);
 }
@@ -262,6 +264,7 @@ function toggleDropdown(button) {
   
 /** Compone la secuencia */
 function handleFormSubmit(event) {
+  console.log("handleFormSubmit() compone secuencia");
     event.preventDefault();
   
     data = new FormData(event.target);
@@ -355,7 +358,7 @@ function handleFormSubmit(event) {
 
             }
 
-            // Columna de la subida del fichero
+            // Columna de la subida del fichero animacion led
             if (index === 3) {
               const inputElement = cell.querySelector('input[type="file"]');
                 if (inputElement.files.length > 0) {
@@ -378,7 +381,7 @@ function handleFormSubmit(event) {
           });
         
           actions.push(rowData);
-          console.log("ROW DATA GRABADO EN generatesequebce.js ----->",rowData );
+          console.log("handleFormSubmit() actions[]  ----->",actions );
     });
     
     formJSON.actions = actions;
@@ -399,9 +402,7 @@ function handleFormSubmit(event) {
     seccion1.style.display = "block";
     seccion2.style.display = "none";
   
-    /*const results = document.querySelector('.results pre');
-    results.innerText = JSON.stringify(formJSON, null, 2);*/
-
+    console.log("handleFormSubmit() llamada a playSequence");
     playSequence();
   }
   

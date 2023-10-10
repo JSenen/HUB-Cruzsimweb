@@ -85,20 +85,19 @@ window.onload = function () {
 
 //Funcion carga el fichero .led para procesarlo
 function playAnimacion(fileName, fileData) {
-  //finSimulacion();
-  //stopAnimacion();
+
   console.log("Inicio funcion playAnimacion()");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
-  z = z + 2 //Sumamos +1 para que la animacion solo se ejecute una vez
-  //SENEN --> Lee el contenido del archivo .led proporcionado en formato base64
+  z = z + 2 //Sumamos +2 para que la animacion solo se ejecute una vez
+  //Lee el contenido del archivo .led proporcionado en formato base64
   aniBytes = new Uint8Array(atob(fileData).split("").map(function (c) { return c.charCodeAt(0); }));
   console.log("numero de aniBytes=", aniBytes);
-  framesNum = Math.ceil(aniBytes.length / BLOCK_SIZE); //Redondeo para que framesCounter pueda contar
+  framesNum = Math.ceil(aniBytes.length / BLOCK_SIZE); //Redondeo para que framesNum pueda compararse con FramesCounter
   frameCounter = 0;
   bytesOffet = 0;
   stop = false;
   //Lanza función para dibujar la animación después de cargar el archivo .led
-  console.log("LLama a dibujar animacion envia Z = ", z);
+  console.log("LLama a dibujar animacion desde playAnimacion() se envia z = ", z);
   //Ejecuta función despues de tiempo establecido por delayInicioAnimacion
   frameControl = setTimeout(dibujarAnimacion(), delayInicioAnimación);
   detenerAnimacionLED();
@@ -114,15 +113,15 @@ function dibujarAnimacion() {
   var LEDColor2;
   var LEDColor3;
   var LEDColor4;
-
+  console.log("Inicio dibujarAnimacion()");
   console.log("frameCounter recibido:", frameCounter);
   console.log("framesNum establecido:", framesNum);
   console.log("stop:", stop);
-  console.log("Z dibujarAnimacion()", z);
+  console.log("z dibujarAnimacion()", z);
 
   // Verifica si se han ejecutado todos los cuadros
   if (frameCounter >= framesNum - 1 || stop) {
-    console.log("frameCounter >= framesNum");
+    console.log("verifica frameCounter >= framesNum o stop");
     clearInterval(frameControl);
     console.log("framaControl se libera a nulo");
     frameControl = null;
@@ -250,7 +249,7 @@ function dibujarAnimacion() {
   frameCounter++;
 
   if (frameCounter < framesNum) {
-    console.log("frameCounter <= framesNum")
+    console.log("frameCounter < framesNum")
     frameControl = setTimeout(dibujarAnimacion, framePause);
     stop = false;
   }
@@ -258,22 +257,25 @@ function dibujarAnimacion() {
     stop = true;
   }
 }
+
+//Funcion deteniene animacion fichero Led una vez finalzida
 function detenerAnimacionLED() {
 
   document.getElementById("textoInfo").innerHTML = "animacion LED detenida .. continua secuencia"; // Mostrar un mensaje de finalización
-  console.log("LED detenida, action")
+  console.log("Inicio funcion detenerAnimacion()");
 
   if (z <= (actions.length) - 1) {
 
     z = z + 1;
-    console.log("detenerAnimacionLED() z < actions.length-1 , z =", z);
+    console.log("detenerAnimacionLED() z <= actions.length-1 , z =", z," actions.lenght = ",actions.length);
     fin = true;
+    console.log("detenerAnimacionLED() llamada a playSequence()");
     playSequence();
   } else if (z > (actions.length)-1){
     fin = true;
     z = 0;
-    console.log("detenerAnimacionLED(), z =", z);
-    console.log("detenerANimacionLED() llamada a showAction()");
+    console.log("detenerAnimacionLED() z > actions.length-1 , z =", z," actions.lenght = ",actions.length);
+    console.log("detenerAnimacionLED() llamada a showAction()");
     showAction(action[z], jsonData);
   }
 
@@ -314,7 +316,7 @@ function downloadSequence() {
 function finSimulacion() {
   fin = true;
   end = true;
-  document.getElementById("textoInfo").innerHTML = "Fin simulación cruz.";
+  document.getElementById("textoInfo").innerHTML = "Fin simulación.";
 }
 
 function stopAnimacion() {
@@ -326,6 +328,7 @@ function stopAnimacion() {
 
 //Muestra las opciones de crear secuencia
 function displaySequence() {
+  console.log("displaySequence() llamda a finSimulacio() y stopSimulacion()");
   finSimulacion();
   stopAnimacion();
   seccion1.style.display = "none";
@@ -367,6 +370,7 @@ function playSequence() {
     fin = true;
     primera_vez = true;
     done = false;
+    console.log("playSequence() llamada a myLoop()");
     myLoop(jsonData);
   };
 }
@@ -382,13 +386,16 @@ function myLoop(jsonData) {
 
     if (fin) {
       // Realizamos siguiente acción
-      console.log("Dentro myLoop");
-      console.log("z = ", z);
+      console.log("Inicio myLoop() fin = ",fin, " z = ",z);
+      console.log("myLoop() llamda a showAction()");
       showAction(actions[z], jsonData);
       z++;
+      console.log("myLoop() z +1 z = ",z);
       // Si se ha llegado al final de la secuencia, vuelta al principio
       if (z > (actions.length) - 1) {
+        console.log("myLoop() z > actions.lenght -1  z = ",z," actions.lenght = ",actions.lenght);
         z = 0;
+        console.log("myLoop() z = 0");
       }
 
     }
@@ -411,6 +418,8 @@ function myLoop(jsonData) {
  */
 function showAction(action, jsonData) {
 
+  console.log("Inicio showAction() ");
+
   //Obtenemos los parametros de la accion para un uso mas sencillo de la informacion
   var mensaje;                                                  //Mensaje a mostrar
   var top_draw = "dib" + action.parameters.top_drawing;         //Dibujo superior de la cruz
@@ -424,19 +433,15 @@ function showAction(action, jsonData) {
   //var line = action.parameters.row;                           //(EN ESTE CASO NO SE USA, YA QUE LA POSICION DEL TEXTO SE DETERMINA CON 'LED') Fila en la que se muestra el mensaje
   var speed = action.parameters.speed;                          //Velocidad del texto
   var pausa = action.parameters.pause;                          //Tiempo de espera que realiza el texto
-
-  //TODO: SENEN--> Revisar funcionamiento ORLA
   var orla = action.parameters.orla;                            //Orla activada o no
-
   var tipography = action.parameters.tipografia;                //Tipografia a utilizar
   var color = action.parameters.color;                          //Color seleccionado
-  var led = action.parameters.led;                             //Fila a partir de donde se mostrara el mensaje 
+  var led = action.parameters.led;                              //Fila a partir de donde se mostrara el mensaje 
   var animationled = false;                                     // Animacion en la secuencia
 
   espera = 0; //Tiempo de espera entre acciones
-  console.log("actions lenght -->", actions.length);
 
-  //MENSAJES A MOSTRAR (EN ESTE CASO ESTAN PUESTOS EN CODIGO PERO DEBERIAN VENIR COMO PARAMETRO)
+  //MENSAJES A MOSTRAR (EN ESTE CASO ESTAN HARDCODEADOS, DEBERIAN VENIR COMO PARAMETRO)
   switch (action.type) {
     case "Temperatura":
       mensaje = "24º";
@@ -454,7 +459,7 @@ function showAction(action, jsonData) {
       break;
 
     case "Santoral":
-      mensaje = "AVUI ÉS SANT FRUTINI";
+      mensaje = "Sant Joan";
       break;
 
     case "Imagen":
@@ -478,7 +483,7 @@ function showAction(action, jsonData) {
       break;
     //Caso de cargar animacion, carga el fichero .led seleccionado
     case "Animación":
-      console.log("Ve que es una animacion")
+      console.log("showAnimation() ve que es una animacion");
       // Verificar si se incluyó la animación en el objeto JSON
       if (action.animation) {
         // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
@@ -489,13 +494,13 @@ function showAction(action, jsonData) {
           fileData: action.animation.fileData
         }; 
       } else {
-        // En caso de que no haya animación, simplemente establece el mensaje
+        // En caso de que no se carge animación, sestablece el mensaje
         mensaje = "No LED"; //TODO eliminar tras pruebas
       }
       break;
 
     default:
-      mensaje = "LA MEJOR FARMACIA";
+      mensaje = "FARMACIA";
   }
  
 
@@ -661,20 +666,19 @@ function findValue(array, num) {
  * @param {int} action_led numero de filas de led a partir del cual mostrar el mensaje (Este valor viene derivado del valor de FILA)
  */
 function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led, animationled, fileAnimation) {
-
+  console.log("Inicio animation()");
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
-  document.getElementById("textoInfo").innerHTML = "Inicio secuencia creada.";
+  document.getElementById("textoInfo").innerHTML = "Inicio secuencia animacion creada.";
 
-  //Inidcamos cuales son los parametros de altura y longitud de la cruz para poder trabajar con ellos.
+  //Indicamos cuales son los parametros de altura y longitud de la cruz para poder trabajar con ellos.
   cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
   cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
 
   //================= SELECTION ANIMACION FICHERO LED =====================
   if (animationled) {
-    console.log("FileAnimation = true llama a función playAnimacion()")
-    //z = z + 1;
-    console.log("animation() envia  Z --> ",z);
+    console.log("animation() -> Recibe animationled = ", animationled, " llamada a playAnimacion() z = ",z);
+    console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData = ",fileAnimation.fileData);
     playAnimacion(fileAnimation.fileName, fileAnimation.fileData);
    
   }
