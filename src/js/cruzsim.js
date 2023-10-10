@@ -133,6 +133,7 @@ function dibujarAnimacion() {
   framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
   framePause = framePause * PAUSE_MS;
   bytesOffet = bytesOffet + 6;
+  
   for (n = 0; n < FRAME_SIZE; n++) {
     frameBytes[n] = aniBytes[n + bytesOffet];
   }
@@ -141,8 +142,9 @@ function dibujarAnimacion() {
   contadorFila = 0;
   x = 0;
   y = 0;
-
+  
   for (i = 0; i < frameBytes.length; i++) {
+
     // procesar byte de streamBMP
     let datoLed = frameBytes[i];
     let colorMask1 = 0b11000000;
@@ -167,6 +169,7 @@ function dibujarAnimacion() {
       case 0b10000000:
         ctx.drawImage(bmpRojo, x, y);
         break;
+        
       default:
         ctx.drawImage(bmpApagado, x, y);
 
@@ -223,10 +226,11 @@ function dibujarAnimacion() {
       y += 10;
     }
   }
+  
   // =======  CANVAS SUPERPOSICION ANIMACION CUADRADOS EN LAS ESQUINAS =============== //
    // Cuadrado superior izquierdo
-   ctx.fillStyle = "white"; // Establece el color a blanco
-   ctx.fillRect(0, 0, 211, 211); // Dibuja un cuadrado en la esquina superior izquierda
+   
+   /*ctx.fillRect(0, 0, 211, 211); // Dibuja un cuadrado en la esquina superior izquierda
  
    // Cuadrado superior derecho
    ctx.fillRect(canvas.width - 210, 0, 210, 210); // Dibuja un cuadrado en la esquina superior derecha
@@ -244,7 +248,7 @@ function dibujarAnimacion() {
    // Cuadrado lateral central izquierdo
     ctx.fillRect(0, (canvas.height - 140) / 2, 70, 140);
   // Cuadrado lateral central derecho
-    ctx.fillRect(canvas.width - 70, (canvas.height - 140) / 2, 70, 140);
+    ctx.fillRect(canvas.width - 70, (canvas.height - 140) / 2, 70, 140);*/
 
   frameCounter++;
 
@@ -255,6 +259,9 @@ function dibujarAnimacion() {
   }
   else {
     stop = true;
+     // Al final de la animación, llenar el canvas con blanco
+     ctx.fillStyle = "white";
+     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 }
 
