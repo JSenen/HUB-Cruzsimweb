@@ -1,5 +1,6 @@
 // TODO en fichero principal
 
+function newCanvas(){
 // Crear un nuevo canvas para la máscara
 var maskCanvas = document.createElement('canvas');
 maskCanvas.width = maskContent[0].length;
@@ -20,6 +21,8 @@ for (var y = 0; y < maskContent.length; y++) {
     }
   }
 }
+}
+
 
 
 ///
@@ -31,3 +34,4 @@ ctx.globalCompositeOperation = 'source-over'; // Restaurar la operación predete
 
 
 //// Dibujar animacon
+dibujarAnimacion();
