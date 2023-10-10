@@ -16,14 +16,14 @@ function addAction() {
       <input type="text" id="id" value="${count}"></td>
     <td>
         <select>
-            <option value"temperature">Temperatura</option>
-            <option value"hour">Hora</option>
-            <option value"time">Tiempo</option>
-            <option value"santoral">Santoral</option>
-            <option value"image">Imagen</option>
-            <option value"humidity">Humedad</option>
-            <option value"date">Fecha</option>
-            <option value"text">Texto</option>
+            <option value="temperature">Temperatura</option>
+            <option value="hour">Hora</option>
+            <option value="time">Tiempo</option>
+            <option value="santoral">Santoral</option>
+            <option value="image">Imagen</option>
+            <option value="humidity">Humedad</option>
+            <option value="date">Fecha</option>
+            <option value="text">Texto</option>
             <option value="Animación">Animación</option>
         </select>
     </td>
