@@ -15,7 +15,7 @@ function addAction() {
       <label id="count" style="display: none;">${count}</label>
       <input type="text" id="id" value="${count}"></td>
     <td>
-        <select>
+        <select id="animation-selected-${count}">
             <option value="temperature">Temperatura</option>
             <option value="hour">Hora</option>
             <option value="time">Tiempo</option>
@@ -24,7 +24,7 @@ function addAction() {
             <option value="humidity">Humedad</option>
             <option value="date">Fecha</option>
             <option value="text">Texto</option>
-            <option value="Animación">Animación</option>
+            <option id="animation_selected" value="animation">Animación</option>
         </select>
     </td>
     <td>
@@ -240,15 +240,28 @@ function addAction() {
       </div>
     </td>
     <td>
-      <input type="file" id="fileSelector-${count}" accept=".led">
+    <input type="file" id="fileSelector-${count}" accept=".led" style="display: none;">
     </td>
     <td><button type="button" onclick="removeAction('row-${count}')" class="delete-btn">Delete</button></td>
-    `;
-    table = document.getElementById('table');
-    table.querySelector('tbody').appendChild(newRow);
-    count++;
-}
+  `;
 
+  table = document.getElementById('table');
+  table.querySelector('tbody').appendChild(newRow);
+
+  //Creamos un listener para que boton de buscar fichero animación sólo sea visible cuando se selecciona animación
+  var animationSelected = document.getElementById(`animation-selected-${count}`);
+  var inputFileAnimation = document.getElementById(`fileSelector-${count}`);
+  
+  animationSelected.addEventListener('change', function () {
+    if (animationSelected.value === 'animation') {
+      inputFileAnimation.style.display = "block"; // Muestra el input file cuando se selecciona "Animación"
+    } else {
+      inputFileAnimation.style.display = "none"; // Oculta el input file en caso contrario
+    }
+  });
+
+  count++;
+}
 
 function removeAction(row_id) {
   console.log("removeAction()");
@@ -264,7 +277,7 @@ function toggleDropdown(button) {
   
 /** Compone la secuencia */
 function handleFormSubmit(event) {
-  console.log("handleFormSubmit() compone secuencia");
+  console.log("Inicio handleFormSubmit() --> compone secuencia");
     event.preventDefault();
   
     data = new FormData(event.target);

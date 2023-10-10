@@ -443,34 +443,34 @@ function showAction(action, jsonData) {
 
   //MENSAJES A MOSTRAR (EN ESTE CASO ESTAN HARDCODEADOS, DEBERIAN VENIR COMO PARAMETRO)
   switch (action.type) {
-    case "Temperatura":
+    case "temperature":
       mensaje = "24º";
       break;
 
-    case "Hora":
+    case "hour":
       var date = new Date();
       let currentHour = String(date.getHours()).padStart(2, '0');
       let currentMinute = String(date.getMinutes()).padStart(2, '0');
       mensaje = `${currentHour}:${currentMinute}`;
       break;
 
-    case "Tiempo":
+    case "time":
       mensaje = "Solejat amb núvols";
       break;
 
-    case "Santoral":
+    case "santoral":
       mensaje = "Sant Joan";
       break;
 
-    case "Imagen":
+    case "image":
       mensaje = "Imagen";
       break;
 
-    case "Humedad":
+    case "humidity":
       mensaje = "HUMITAT: 65%";
       break;
 
-    case "Fecha":
+    case "date":
       var date = new Date();
       let currentDay = String(date.getDate()).padStart(2, '0');
       let currentMonth = String(date.getMonth() + 1).padStart(2, '0');
@@ -478,11 +478,11 @@ function showAction(action, jsonData) {
       mensaje = `${currentDay}/${currentMonth}/${currentYear}`;
       break;
 
-    case "Texto":
+    case "text":
       mensaje = action.parameters.message;
       break;
     //Caso de cargar animacion, carga el fichero .led seleccionado
-    case "Animación":
+    case "animation":
       console.log("showAnimation() ve que es una animacion");
       // Verificar si se incluyó la animación en el objeto JSON
       if (action.animation) {
