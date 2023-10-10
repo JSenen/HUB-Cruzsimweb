@@ -33,7 +33,7 @@ var seccion1;
 var seccion2;
 
 
-var z = 0;
+let z = 0;
 var end = false;
 var espera = 0;
 var acabar;
@@ -46,13 +46,13 @@ var bucle;
 var timeoutId;
 
 var animationled;
-var fileAnimation;
+let fileAnimation;
 var jsonData;
 
 //Código al cargar la página
 window.onload = function () {
   document.getElementById("textoInfo").innerHTML = "inicio onLoad";
-// Se crea el CANVAS 560 x 560  en el cuerpo del documento
+  // Se crea el CANVAS 560 x 560  en el cuerpo del documento
   canvas = document.createElement('canvas');
   canvas.width = 560;
   canvas.height = 560;
@@ -74,9 +74,9 @@ window.onload = function () {
   bmpBlanco.src = "../bmp/led_blanco_10.bmp";
 
 
-// Se obtiene una referencia al formulario HTML con la clase "seqForm" y se agrega un controlador de eventos para el evento de envío del formulario (submit).
+  // Se obtiene una referencia al formulario HTML con la clase "seqForm" y se agrega un controlador de eventos para el evento de envío del formulario (submit).
   document.getElementById("textoInfo").innerHTML = "Iniciar secuencia.";
-//Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
+  //Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
   form = document.querySelector('.seqForm');
   form.addEventListener('submit', handleFormSubmit);
   seccion1 = document.getElementById("seccion1");
@@ -89,18 +89,18 @@ function playAnimacion(fileName, fileData) {
   //stopAnimacion();
   console.log("Inicio funcion playAnimacion()");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
-  z++ //Sumamos +1 para que la animacion solo se ejecute una vez
+  z = z + 2 //Sumamos +1 para que la animacion solo se ejecute una vez
   //SENEN --> Lee el contenido del archivo .led proporcionado en formato base64
-  aniBytes = new Uint8Array(atob(fileData).split("").map(function(c) { return c.charCodeAt(0); }));
-  console.log("numero de aniBytes=",aniBytes);
+  aniBytes = new Uint8Array(atob(fileData).split("").map(function (c) { return c.charCodeAt(0); }));
+  console.log("numero de aniBytes=", aniBytes);
   framesNum = Math.ceil(aniBytes.length / BLOCK_SIZE); //Redondeo para que framesCounter pueda contar
   frameCounter = 0;
   bytesOffet = 0;
   stop = false;
   //Lanza función para dibujar la animación después de cargar el archivo .led
-  console.log("LLama a dibujar animacion")
+  console.log("LLama a dibujar animacion envia Z = ", z);
   //Ejecuta función despues de tiempo establecido por delayInicioAnimacion
-  frameControl = setTimeout(dibujarAnimacion, delayInicioAnimación);
+  frameControl = setTimeout(dibujarAnimacion(), delayInicioAnimación);
   detenerAnimacionLED();
 }
 
@@ -118,15 +118,15 @@ function dibujarAnimacion() {
   console.log("frameCounter recibido:", frameCounter);
   console.log("framesNum establecido:", framesNum);
   console.log("stop:", stop);
-  console.log("Z Dibujar Animacion",z);
-  
+  console.log("Z dibujarAnimacion()", z);
+
   // Verifica si se han ejecutado todos los cuadros
-  if (frameCounter >= framesNum-1|| stop ) {
+  if (frameCounter >= framesNum - 1 || stop) {
     console.log("frameCounter >= framesNum");
     clearInterval(frameControl);
     console.log("framaControl se libera a nulo");
     frameControl = null;
-    detenerAnimacionLED();
+    detenerAnimacionLED(z);
   }
 
   // leer pausa
@@ -224,9 +224,31 @@ function dibujarAnimacion() {
       y += 10;
     }
   }
+  // =======  CANVAS SUPERPOSICION ANIMACION CUADRADOS EN LAS ESQUINAS =============== //
+   // Cuadrado superior izquierdo
+   ctx.fillStyle = "white"; // Establece el color a blanco
+   ctx.fillRect(0, 0, 211, 211); // Dibuja un cuadrado en la esquina superior izquierda
  
+   // Cuadrado superior derecho
+   ctx.fillRect(canvas.width - 210, 0, 210, 210); // Dibuja un cuadrado en la esquina superior derecha
+ 
+   // Cuadrado inferior izquierdo
+   ctx.fillRect(0, canvas.height - 210, 210, 210); // Dibuja un cuadrado en la esquina inferior izquierda
+ 
+   // Cuadrado inferior derecho
+   ctx.fillRect(canvas.width - 210, canvas.height - 210, 210, 210); // Dibuja un cuadrado en la esquina inferior derecha
+
+   //Cuadrado superior central
+   ctx.fillRect(211, 0, 140, 70);
+   //Cuadrado inferior central
+   ctx.fillRect((canvas.width - 140) / 2, canvas.height - 70, 140, 70);
+   // Cuadrado lateral central izquierdo
+    ctx.fillRect(0, (canvas.height - 140) / 2, 70, 140);
+  // Cuadrado lateral central derecho
+    ctx.fillRect(canvas.width - 70, (canvas.height - 140) / 2, 70, 140);
+
   frameCounter++;
-  
+
   if (frameCounter < framesNum) {
     console.log("frameCounter <= framesNum")
     frameControl = setTimeout(dibujarAnimacion, framePause);
@@ -236,23 +258,24 @@ function dibujarAnimacion() {
     stop = true;
   }
 }
-function detenerAnimacionLED(){
-  
-    document.getElementById("textoInfo").innerHTML = "animacion LED detenida .. continua secuencia"; // Mostrar un mensaje de finalización
-    console.log("LED detenida, action")
-    
-    if (z < (actions.length)-1) {
-      
-      z = 0;
-      console.log("detenerAnimacionLED() z < actions.length-1 , z =", z);
-      playSequence();
-    } else {
-      fin = true;
-      z = 0;
-      console.log("detenerAnimacionLED(), z =", z);
-      console.log("detenerANimacionLED() llamada a showAction()");
-      showAction(action[z],jsonData);
-    }
+function detenerAnimacionLED() {
+
+  document.getElementById("textoInfo").innerHTML = "animacion LED detenida .. continua secuencia"; // Mostrar un mensaje de finalización
+  console.log("LED detenida, action")
+
+  if (z <= (actions.length) - 1) {
+
+    z = z + 1;
+    console.log("detenerAnimacionLED() z < actions.length-1 , z =", z);
+    fin = true;
+    playSequence();
+  } else if (z > (actions.length)-1){
+    fin = true;
+    z = 0;
+    console.log("detenerAnimacionLED(), z =", z);
+    console.log("detenerANimacionLED() llamada a showAction()");
+    showAction(action[z], jsonData);
+  }
 
 }
 
@@ -267,7 +290,7 @@ function ficheros() {
 
 
 
-function downloadSequence () {
+function downloadSequence() {
   // Convert JSON to a data URI
   const dataURI = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(formJSON, null, 2));
 
@@ -307,6 +330,7 @@ function displaySequence() {
   stopAnimacion();
   seccion1.style.display = "none";
   seccion2.style.display = "block";
+
 }
 
 //Cerrar las opciones de crear secuencias 
@@ -324,7 +348,7 @@ function displayAnimation() {
  * Funcion que ejecuta la secuencia una vez configurada. Lee el json que da forma a la cruz,
  * resetea valores y empieza el bucle que mostrara las animaciones
  */
-function  playSequence () {
+function playSequence() {
   document.getElementById("textoInfo").innerHTML = "Inicio simulación secuencia creada.";
   //Almacena la mascara selecionada
   var fileInput = document.getElementById('fileSelectorCrossMask');
@@ -332,7 +356,7 @@ function  playSequence () {
   var reader = new FileReader();
   reader.readAsText(file);
 
-  reader.onload = function(e) {
+  reader.onload = function (e) {
     var contents = e.target.result;
     var jsonData = JSON.parse(contents);
 
@@ -353,13 +377,13 @@ function  playSequence () {
  * 
  * @param {JSON} jsonData json con las mascaras de la cruz, que indican su forma y los colore disponibles.
  */
-function myLoop(jsonData) {        
-  setTimeout(function() {
-  
+function myLoop(jsonData) {
+  setTimeout(function () {
+
     if (fin) {
       // Realizamos siguiente acción
       console.log("Dentro myLoop");
-      console.log("z = ",z);
+      console.log("z = ", z);
       showAction(actions[z], jsonData);
       z++;
       // Si se ha llegado al final de la secuencia, vuelta al principio
@@ -368,7 +392,7 @@ function myLoop(jsonData) {
       }
 
     }
-    
+
     // Mientras no se pare y no se esté reproduciendo una animación, se continua de forma cíclica
     if (!end) {
       myLoop(jsonData);
@@ -408,9 +432,10 @@ function showAction(action, jsonData) {
   var color = action.parameters.color;                          //Color seleccionado
   var led = action.parameters.led;                             //Fila a partir de donde se mostrara el mensaje 
   var animationled = false;                                     // Animacion en la secuencia
-  
+
   espera = 0; //Tiempo de espera entre acciones
-  console.log("actions lenght -->",actions.length);
+  console.log("actions lenght -->", actions.length);
+
   //MENSAJES A MOSTRAR (EN ESTE CASO ESTAN PUESTOS EN CODIGO PERO DEBERIAN VENIR COMO PARAMETRO)
   switch (action.type) {
     case "Temperatura":
@@ -451,30 +476,31 @@ function showAction(action, jsonData) {
     case "Texto":
       mensaje = action.parameters.message;
       break;
-      //Caso de cargar animacion, carga el fichero .led seleccionado
-      case "animation":
-          console.log("Ve que es una animacion")
-          // Verificar si se incluyó la animación en el objeto JSON
-          if (action.animation) {
-            // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
-            console.log("Guarda fichero animacion para procesar despues")
-            animationled = true;
-            fileAnimation = {
-              fileName: action.animation.fileName,
-              fileData: action.animation.fileData
-            };
-          } else {
-            // En caso de que no haya animación, simplemente establece el mensaje
-            mensaje = "No LED"; //TODO eliminar tras pruebas
-          }
-                break;
-  
+    //Caso de cargar animacion, carga el fichero .led seleccionado
+    case "Animación":
+      console.log("Ve que es una animacion")
+      // Verificar si se incluyó la animación en el objeto JSON
+      if (action.animation) {
+        // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
+        console.log("Guarda fichero animacion para procesar despues")
+        animationled = true;
+        fileAnimation = {
+          fileName: action.animation.fileName,
+          fileData: action.animation.fileData
+        }; 
+      } else {
+        // En caso de que no haya animación, simplemente establece el mensaje
+        mensaje = "No LED"; //TODO eliminar tras pruebas
+      }
+      break;
+
     default:
       mensaje = "LA MEJOR FARMACIA";
   }
+ 
 
   //Con los parametros, se procede a mostrar 
-  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled); 
+  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled, fileAnimation);
 }
 
 
@@ -514,7 +540,7 @@ function checkArrays(maskContent) {
   //Inicializamos la mascara a todo 0
   for (var i = 0; i < cross_height; i++) {
     mascara[i] = [];
-    for(var j = 0; j < cross_width; j++) {
+    for (var j = 0; j < cross_width; j++) {
       mascara[i][j] = 0;
     }
   }
@@ -532,7 +558,7 @@ function checkArrays(maskContent) {
   // Primera mascara de la cruz (Verde)
   if (maskContent.mask_coreFC1.length != 0) {
     for (var i = 0; i < maskContent.mask_coreFC1.length; i++) {
-      for(var j = 0; j < maskContent.mask_coreFC1[i].length; j++) {
+      for (var j = 0; j < maskContent.mask_coreFC1[i].length; j++) {
         if (maskContent.mask_coreFC1[i][j] == 65535 && mascara[i][j] == BLANCO) {
           mascara[i][j] = BLANCO;
         } else if (maskContent.mask_coreFC1[i][j] != 65535 && mascara[i][j] == BLANCO) {
@@ -547,7 +573,7 @@ function checkArrays(maskContent) {
   // Segunda mascara de la cruz (Rojo)
   if (maskContent.mask_coreFC2.length != 0) {
     for (var i = 0; i < maskContent.mask_coreFC2.length; i++) {
-      for(var j = 0; j < maskContent.mask_coreFC2[i].length; j++) {
+      for (var j = 0; j < maskContent.mask_coreFC2[i].length; j++) {
         if (maskContent.mask_coreFC2[i][j] == 65535 && mascara[i][j] == BLANCO) {
           mascara[i][j] = BLANCO;
         } else if (maskContent.mask_coreFC2[i][j] != 65535 && mascara[i][j] == BLANCO) {
@@ -562,7 +588,7 @@ function checkArrays(maskContent) {
   // Primera mascara de la orla (Verde)
   if (maskContent.mask_orlaFC1.length != 0) {
     for (var i = 0; i < maskContent.mask_orlaFC1.length; i++) {
-      for(var j = 0; j < maskContent.mask_orlaFC1[i].length; j++) {
+      for (var j = 0; j < maskContent.mask_orlaFC1[i].length; j++) {
         if (maskContent.mask_orlaFC1[i][j] == 65535 && mascara[i][j] == BLANCO) {
           mascara[i][j] = BLANCO;
         } else if (maskContent.mask_orlaFC1[i][j] != 65535 && mascara[i][j] == BLANCO) {
@@ -577,7 +603,7 @@ function checkArrays(maskContent) {
   // Segunda mascara de la orla (Rojo)
   if (maskContent.mask_orlaFC2.length != 0) {
     for (var i = 0; i < maskContent.mask_orlaFC2.length; i++) {
-      for(var j = 0; j < maskContent.mask_orlaFC2[i].length; j++) {
+      for (var j = 0; j < maskContent.mask_orlaFC2[i].length; j++) {
         if (maskContent.mask_orlaFC2[i][j] == 65535 && mascara[i][j] == BLANCO) {
           mascara[i][j] = BLANCO;
         } else if (maskContent.mask_orlaFC2[i][j] != 65535 && mascara[i][j] == BLANCO) {
@@ -634,27 +660,29 @@ function findValue(array, num) {
  * @param {int} action_color color en que mostrar el texto en caso de que la cruz lo permita
  * @param {int} action_led numero de filas de led a partir del cual mostrar el mensaje (Este valor viene derivado del valor de FILA)
  */
-function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led, animationled){
+function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led, animationled, fileAnimation) {
 
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia creada.";
-  
+
   //Inidcamos cuales son los parametros de altura y longitud de la cruz para poder trabajar con ellos.
   cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
   cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
-  
+
   //================= SELECTION ANIMACION FICHERO LED =====================
   if (animationled) {
-    console.log("animationled = true llama a función playAnimacion()")
-    z = z + 1;
+    console.log("FileAnimation = true llama a función playAnimacion()")
+    //z = z + 1;
+    console.log("animation() envia  Z --> ",z);
     playAnimacion(fileAnimation.fileName, fileAnimation.fileData);
+   
   }
 
   //================== SELECCION DE TIPOGRAFIA A UTILIZAR ==================
   var font;
 
-  if (action_font_size === 1) { 
+  if (action_font_size === 1) {
     //Letra GRANDE
     font = action_tipography === 0 ? font3 : font4; //Font a usar
     row = (topEdge + topPanel_Y) * 10; //Fila donde mostrar los datos
@@ -675,36 +703,36 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   for (i = 0; i < action_message.length; i++) {
     offset = offset + font[action_message[i]][0].length;
   }
-  
+
   //Evitamos que quede un numero impar que descuadre el texto
-  while ((cross_width - offset) % 2 != 0 ) {
+  while ((cross_width - offset) % 2 != 0) {
     offset++;
   }
-  
+
   //Dividimos por la mitad para saber cuanto se separa del cento del panel
-  col = (((cross_width - offset)/2)+1)*10;
+  col = (((cross_width - offset) / 2) + 1) * 10;
 
 
 
   //================== DIBUJAMOS LA CRUZ ==================
   var x = 0;
   var y = 0;
-  
+
   //Integramos las mascaras todo en uno
   checkArrays(cross_mask);
 
   for (var i = 0; i < cross_height; i++) { //i = y
     for (var j = 0; j < cross_width; j++) { // j = x
-      
+
       //Dibujamos orla si se indica con el color escogido si dispone de el
       //Si es bicolor, puede tener los tres
-      if (action_orla == true) { 
+      if (action_orla == true) {
         if ((mascara[i][j] == 4 || mascara[i][j] == 6) && action_color == 0) { //Puede verde o bicolor, selecciona verde
           ctx.drawImage(bmpVerde, x, y);
-  
+
         } else if ((mascara[i][j] == 5 || mascara[i][j] == 6) && action_color == 1) { //Puede rojo o bicolor, selecciona rojo
           ctx.drawImage(bmpRojo, x, y);
-  
+
         } else if (mascara[i][j] == 6 && action_color == 2) { //Puede bicolor, selecciona bicolor
           ctx.drawImage(bmpAmarillo, x, y);
 
@@ -714,12 +742,12 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
         } else if (mascara[i][j] == 5) { //Solo puede rojo y seleccion no coincide
           ctx.drawImage(bmpRojo, x, y);
         }
-        
-      } else if ( action_orla == false && (mascara[i][j] == 4 || mascara[i][j] == 5 || mascara[i][j] == 6)) {
+
+      } else if (action_orla == false && (mascara[i][j] == 4 || mascara[i][j] == 5 || mascara[i][j] == 6)) {
         ctx.drawImage(bmpApagado, x, y);
       }
-      
-      if (mascara[i][j] == 0 ) {
+
+      if (mascara[i][j] == 0) {
         ctx.drawImage(bmpBlanco, x, y);
       }
 
@@ -730,20 +758,20 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
         if (action_delete_all || primera_vez) {
           ctx.drawImage(bmpApagado, x, y);
 
-        } else if (action_delete_single_row && y >= (topEdge + topPanel_Y + action_led)*10 && y < (topEdge + topPanel_Y + action_led + font[action_message[0]].length)*10) {
+        } else if (action_delete_single_row && y >= (topEdge + topPanel_Y + action_led) * 10 && y < (topEdge + topPanel_Y + action_led + font[action_message[0]].length) * 10) {
           //Borramos a partir de la linia de leds que se indique y la altura del texto
           ctx.drawImage(bmpApagado, x, y);
         }
       }
-      x+=10;
+      x += 10;
     }
-    x=0;
-    y+=10;
+    x = 0;
+    y += 10;
   }
 
   primera_vez = false;
 
-  
+
 
   //================== COLOR DEL TEXTO ==================
   //Miramos que colores permite la cruz a partir de la mascara integrada 
@@ -756,12 +784,12 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   } else {
     action_color = bmpVerde;
   }
-  
+
 
 
   //================== DIBUJOS PANEL SUPERIOR E INFERIOR ==================
-  dibujarDib((cross_width/2 + topPanel_X/2 - 1)*10, (topEdge+topPanel_Y-1)*10, eval(action_top_draw), action_color, "top");// Dibuja la cruz de arriba
-  dibujarDib((cross_width/2 + bottomPanel_X/2 - 1)*10 , (cross_height-bottomEdge-1)*10, eval(action_bottom_draw), action_color, "bottom");// Dibuja la cruz de abajo
+  dibujarDib((cross_width / 2 + topPanel_X / 2 - 1) * 10, (topEdge + topPanel_Y - 1) * 10, eval(action_top_draw), action_color, "top");// Dibuja la cruz de arriba
+  dibujarDib((cross_width / 2 + bottomPanel_X / 2 - 1) * 10, (cross_height - bottomEdge - 1) * 10, eval(action_bottom_draw), action_color, "bottom");// Dibuja la cruz de abajo
 
   //Reset de valores
   fin = false;
@@ -785,13 +813,13 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
     scrollControl = setInterval(ponerTexto, delayInicioScroll, action_message, "D", action_speed, font, action_pausa, action_text_in_out, action_text_only_in, offset, action_color);
 
   } else if (action_effect == 4) { // Desplazamiento Fija
-    scrollControl = setInterval(ponerTextoStatico, delayInicioScroll, action_message,  "F", font, action_speed, action_pausa, action_color);
+    scrollControl = setInterval(ponerTextoStatico, delayInicioScroll, action_message, "F", font, action_speed, action_pausa, action_color);
 
   } else if (action_effect == 5) { // Desplazamiento Fija Parpadeante
-    scrollControl = setInterval(ponerTextoStatico, delayInicioScroll, action_message,  "FP", font, action_speed, action_pausa, action_color);
+    scrollControl = setInterval(ponerTextoStatico, delayInicioScroll, action_message, "FP", font, action_speed, action_pausa, action_color);
 
   } else { // Desplazamiento Izq
-    col = (cross_width-rightEdge)*10;
+    col = (cross_width - rightEdge) * 10;
     scrollControl = setInterval(ponerTexto, delayInicioScroll, action_message, "I", action_speed, font, action_pausa, action_text_in_out, action_text_only_in, offset, action_color);
   }
 }
@@ -855,7 +883,7 @@ function dibujarDib(posx, posy, bufDib, color, position) {
       byteDib = byteDib + 2;
     }
   }
-  
+
 }
 
 
@@ -883,9 +911,9 @@ function ponLetraV11(posx, row, buffLetra, color, font, bucle) {
   y = row;
 
   for (i = bucle; i < font[buffLetra].length; i++) {
-    letraLength =  font[buffLetra][i].length;
+    letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x >= leftEdge*10 && x < (cross_width - rightEdge)*10) {
+      if (x >= leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         } else {
@@ -923,9 +951,9 @@ function ponLetraV12(posx, row, buffLetra, color, font) {
   y = row;
 
   for (i = 0; i < font[buffLetra].length; i++) {
-    letraLength =  font[buffLetra][i].length;
+    letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x >= leftEdge*10 && x < (cross_width - rightEdge)*10) {
+      if (x >= leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         }
@@ -964,10 +992,10 @@ function ponLetraV13(posx, row, buffLetra, color, font, bucle) {
   x = posx;
   y = row;
 
-  for (i = 0; i < font[buffLetra].length-bucle; i++) {
-    letraLength =  font[buffLetra][i].length;
+  for (i = 0; i < font[buffLetra].length - bucle; i++) {
+    letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x >= leftEdge*10 && x < (cross_width - rightEdge)*10) {
+      if (x >= leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         }
@@ -1007,9 +1035,9 @@ function ponLetraV21(posx, row, buffLetra, color, font, bucle) {
   y = row;
 
   for (i = 0; i < font[buffLetra].length - bucle; i++) {
-    letraLength =  font[buffLetra][i].length;
+    letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x >= leftEdge*10 && x < (cross_width - rightEdge)*10) {
+      if (x >= leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         } else {
@@ -1047,9 +1075,9 @@ function ponLetraV22(posx, row, buffLetra, color, font) {
   y = row;
 
   for (i = 0; i < font[buffLetra].length; i++) {
-    letraLength =  font[buffLetra][i].length;
+    letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x >= leftEdge*10 && x < (cross_width - rightEdge)*10) {
+      if (x >= leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         }
@@ -1089,9 +1117,9 @@ function ponLetraV23(posx, row, buffLetra, color, font, bucle) {
   y = row;
 
   for (i = bucle; i < font[buffLetra].length; i++) {
-    letraLength =  font[buffLetra][i].length;
+    letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x >= leftEdge*10 && x < (cross_width - rightEdge)*10) {
+      if (x >= leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         } else {
@@ -1141,7 +1169,7 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
     switch (textMoveState) {
       case 0: //Texto aparece poco a poco desde el panle superior
         for (iletra = 0; iletra < texto.length; iletra++) {
-          pos += ponLetraV11(pos, row+(bucle%1)*10, texto[iletra], color, font, bucle);
+          pos += ponLetraV11(pos, row + (bucle % 1) * 10, texto[iletra], color, font, bucle);
         }
         bucle--;
         if (bucle <= 0) {
@@ -1150,19 +1178,19 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
         break;
 
       case 1: //Texto se desplaza hacia abajo
-      //Miramos si es necesario realizar pausa.
+        //Miramos si es necesario realizar pausa.
         if (pause > 0 && contar == 0) {
 
           //Tamaño de letra pequeña y en que posicion se realiza la pausa
           if (size == 0) {
-            if (row > (topEdge+topPanel_Y+fila)*10) {
+            if (row > (topEdge + topPanel_Y + fila) * 10) {
               done = true;
               contar++;
             }
-          
-          //Tamaño de letra GRANDE. Posicion solo a partir de panel superior
+
+            //Tamaño de letra GRANDE. Posicion solo a partir de panel superior
           } else {
-            if (row > (topEdge+topPanel_Y)*10) {
+            if (row > (topEdge + topPanel_Y) * 10) {
               done = true;
               contar++;
             }
@@ -1177,18 +1205,18 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
                 done = false;
               }
               if (size == 1) {
-                linea=middlePanel_Y - font[texto[0]].length + 3;
+                linea = middlePanel_Y - font[texto[0]].length + 3;
               }
-            }, pause*1000);
-          } 
+            }, pause * 1000);
+          }
         }
-        
+
         //Mientras no se deba realizar la pausa, deplazamiento del texto hacia abajo
         if (!done) {
-          if (row < (cross_height-bottomPanel_Y-bottomEdge-6)*10-70*size) {
+          if (row < (cross_height - bottomPanel_Y - bottomEdge - 6) * 10 - 70 * size) {
             if (linea != 0) {
-              for (i = (cross_width-offset)/2; i < (cross_width+offset)/2; i++) {
-                if (i >= leftEdge && i < cross_width-rightEdge) {
+              for (i = (cross_width - offset) / 2; i < (cross_width + offset) / 2; i++) {
+                if (i >= leftEdge && i < cross_width - rightEdge) {
                   ctx.drawImage(bmpApagado, (10 * i), row - 10);
                 }
               }
@@ -1197,7 +1225,7 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
               pos += ponLetraV12(pos, row, texto[iletra], color, font);
             }
           }
-          
+
           linea++;
           row += 10;
 
@@ -1205,35 +1233,35 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
           if (linea > (middlePanel_Y - font[texto[0]].length + 1)) {
             textMoveState++;
             linea--;
-            row-=10;
+            row -= 10;
             scape_row = row;
             bucle = 1;
           }
         }
-          
+
         break;
 
-        case 2: //Texto desaparece por el final
-          for (i = (cross_width-offset)/2; i < (cross_width+offset)/2; i++) {
-            if (i >= leftEdge && i < cross_width-rightEdge ) {
-              ctx.drawImage(bmpApagado, (10 * i), scape_row-10 );
-            }
+      case 2: //Texto desaparece por el final
+        for (i = (cross_width - offset) / 2; i < (cross_width + offset) / 2; i++) {
+          if (i >= leftEdge && i < cross_width - rightEdge) {
+            ctx.drawImage(bmpApagado, (10 * i), scape_row - 10);
           }
+        }
 
-          for (iletra = 0; iletra < texto.length; iletra++) {
-            pos += ponLetraV13(pos, scape_row, texto[iletra], color, font, bucle);
-          }
+        for (iletra = 0; iletra < texto.length; iletra++) {
+          pos += ponLetraV13(pos, scape_row, texto[iletra], color, font, bucle);
+        }
 
-          linea++;
-          bucle++;
-          scape_row += 10;
-          if (linea > middlePanel_Y) {
-            acabar++;
-          }
-          break;
+        linea++;
+        bucle++;
+        scape_row += 10;
+        if (linea > middlePanel_Y) {
+          acabar++;
+        }
+        break;
     }
 
-  //CASO HACIA ARRIBA
+    //CASO HACIA ARRIBA
   } else if (dir == "U") {
     switch (textMoveState) {
       case 0: //Texto aparece poco a poco desde el panle inferior
@@ -1252,7 +1280,7 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
       case 1://Texto se desplaza hacia arriba
         //Miramos si es necesario realizar pausa.
         if (pause > 0 && contar == 0) {
-          if (row < (topEdge+topPanel_Y+fila)*10) {
+          if (row < (topEdge + topPanel_Y + fila) * 10) {
             done = true;
             contar++;
           }
@@ -1263,19 +1291,19 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
               if (stop_middle) {
                 acabar++;
               }
-            }, pause*1000);
+            }, pause * 1000);
           }
         }
-        
+
         //Mientras no de deba realizar la pausa, desplazamiento de texto hacia arriba
         if (!done) {
-          if (row >= (topEdge + topPanel_Y)*10) {
+          if (row >= (topEdge + topPanel_Y) * 10) {
             for (iletra = 0; iletra < texto.length; iletra++) {
               pos += ponLetraV22(pos, row, texto[iletra], color, font);
             }
 
-            for (i = (cross_width-offset)/2; i < (cross_width+offset)/2; i++) {
-              if (i >= leftEdge && i < cross_width-rightEdge && scape_row < (cross_height - bottomPanel_Y - bottomEdge)*10) {
+            for (i = (cross_width - offset) / 2; i < (cross_width + offset) / 2; i++) {
+              if (i >= leftEdge && i < cross_width - rightEdge && scape_row < (cross_height - bottomPanel_Y - bottomEdge) * 10) {
                 ctx.drawImage(bmpApagado, (10 * i), scape_row);
               }
             }
@@ -1285,13 +1313,13 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
           scape_row -= 10;
           linea++;
         }
-        
+
         //Cuando la parte superior del texto llegue al panel superior, pasamos al ultimo estado
         if (linea > (middlePanel_Y - font[texto[0]].length + 1)) {
           textMoveState++;
           bucle = 1;
           row = (topEdge + topPanel_Y) * 10;
-          scape_row+=10;
+          scape_row += 10;
         }
         break;
 
@@ -1301,8 +1329,8 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
         }
 
 
-        for (i = (cross_width-offset)/2; i < (cross_width+offset)/2; i++) {
-          if (i >= leftEdge && i < cross_width-rightEdge ) {
+        for (i = (cross_width - offset) / 2; i < (cross_width + offset) / 2; i++) {
+          if (i >= leftEdge && i < cross_width - rightEdge) {
             ctx.drawImage(bmpApagado, (10 * i), scape_row);
           }
         }
@@ -1326,7 +1354,7 @@ function ponerTextoV(texto, row, dir, speed, font, pause, bucle, stop_middle, of
   }
 
   if (fin == false) {
-    scrollControl = setInterval(ponerTextoV, tiempoScroll-(speed*2), texto, row, dir, speed, font, pause, bucle, stop_middle, offset, fila, size, color);
+    scrollControl = setInterval(ponerTextoV, tiempoScroll - (speed * 2), texto, row, dir, speed, font, pause, bucle, stop_middle, offset, fila, size, color);
   }
 }
 
@@ -1353,7 +1381,7 @@ function ponLetraIzquierda(posx, posy, buffLetra, color, font) {
   for (i = 0; i < font[buffLetra].length; i++) {
     letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x < (cross_width - rightEdge)*10 && x >= (leftEdge)*10) {
+      if (x < (cross_width - rightEdge) * 10 && x >= (leftEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         }
@@ -1390,7 +1418,7 @@ function ponLetraDerecha(posx, posy, buffLetra, color, font) {
   for (i = 0; i < font[buffLetra].length; i++) {
     letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x >= leftEdge*10 && x < (cross_width-rightEdge)*10) {
+      if (x >= leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         }
@@ -1430,13 +1458,13 @@ function ponerTexto(texto, dir, speed, font, pause, all_movement, stop_middle, o
 
   //CASO HACIA DERECHA
   if (dir == "D") {
-    for (i = (row/10-topEdge-topPanel_Y); i < (row/10-topEdge-topPanel_Y) + font[texto[0]].length; i++) {
-      if (col > leftEdge*10) {
-        ctx.drawImage(bmpApagado, (col - 10), (topEdge + topPanel_Y + i)*10);
+    for (i = (row / 10 - topEdge - topPanel_Y); i < (row / 10 - topEdge - topPanel_Y) + font[texto[0]].length; i++) {
+      if (col > leftEdge * 10) {
+        ctx.drawImage(bmpApagado, (col - 10), (topEdge + topPanel_Y + i) * 10);
       }
     }
     //Miramos si hay espera
-    if (pause > 0 && pos >= ((cross_width-offset)/2)*10 && !done) {
+    if (pause > 0 && pos >= ((cross_width - offset) / 2) * 10 && !done) {
       for (iletra = 0; iletra < texto.length; iletra++) {
         pos += ponLetraDerecha(pos, row, texto[iletra], color, font);
       }
@@ -1447,28 +1475,28 @@ function ponerTexto(texto, dir, speed, font, pause, all_movement, stop_middle, o
           if (stop_middle == true) {
             acabar++;
           }
-        }, pause*1000);
+        }, pause * 1000);
       }
       contar++;
 
     } else {
       //Mientras no haya espera mostramos y desplazamos las letras
-      if (stop_middle == true && pause == 0 && pos > ((cross_width-offset)/2)*10 ) {
+      if (stop_middle == true && pause == 0 && pos > ((cross_width - offset) / 2) * 10) {
         acabar++;
       }
       for (iletra = 0; iletra < texto.length; iletra++) {
         pos += ponLetraDerecha(pos, row, texto[iletra], color, font);
       }
       col += 10; //Vamos incrementando las columnas
-      if (pos >= (leftEdge + middlePanel_X + offset)*10) {
+      if (pos >= (leftEdge + middlePanel_X + offset) * 10) {
         acabar++;
-      } 
+      }
     }
 
-  //CASO HACIA LA IZQUIERDA
+    //CASO HACIA LA IZQUIERDA
   } else if (dir == "I") {
     //Miramos si hay espera
-    if (pause > 0 && pos <= ((cross_width-offset)/2+1)*10 && !done) {
+    if (pause > 0 && pos <= ((cross_width - offset) / 2 + 1) * 10 && !done) {
       for (iletra = 0; iletra < texto.length; iletra++) {
         pos += ponLetraIzquierda(pos, row, texto[iletra], color, font);
       }
@@ -1479,13 +1507,13 @@ function ponerTexto(texto, dir, speed, font, pause, all_movement, stop_middle, o
           if (stop_middle == true) {
             acabar++;
           }
-        }, pause*1000);
+        }, pause * 1000);
       }
       contar++;
 
     } else {
       //Mientras no haya espera mostramos y desplazamos las letras
-      if (stop_middle == true && pause == 0 && pos <= ((cross_width-offset)/2)*10) {
+      if (stop_middle == true && pause == 0 && pos <= ((cross_width - offset) / 2) * 10) {
         acabar++;
       }
       for (iletra = 0; iletra < texto.length; iletra++) {
@@ -1507,7 +1535,7 @@ function ponerTexto(texto, dir, speed, font, pause, all_movement, stop_middle, o
   }
 
   if (fin == false) {
-    scrollControl = setInterval(ponerTexto, tiempoScroll-(speed*2), texto, dir, speed, font, pause, all_movement, stop_middle, offset, color);
+    scrollControl = setInterval(ponerTexto, tiempoScroll - (speed * 2), texto, dir, speed, font, pause, all_movement, stop_middle, offset, color);
   }
 }
 
@@ -1534,7 +1562,7 @@ function ponLetra(posx, posy, buffLetra, color, font) {
   for (i = 0; i < font[buffLetra].length; i++) {
     letraLength = font[buffLetra][i].length;
     for (j = 0; j < letraLength; j++) {
-      if (x > leftEdge*10 && x < (cross_width - rightEdge)*10) {
+      if (x > leftEdge * 10 && x < (cross_width - rightEdge) * 10) {
         if (font[buffLetra][i][j] != 0) {
           ctx.drawImage(color, x, y);
         }
@@ -1565,7 +1593,7 @@ function ponLetra(posx, posy, buffLetra, color, font) {
  * contar => numero de veces que hay que realizar el encendido y apagado
  */
 function ponerTextoStatico(texto, dir, font, speed, pause, color) {
-  
+
   pos = col;
   clearInterval(scrollControl);
 
@@ -1579,11 +1607,11 @@ function ponerTextoStatico(texto, dir, font, speed, pause, color) {
     if (done == false) {
       setTimeout(function () {
         acabar++;
-      }, pause*1000);
+      }, pause * 1000);
       done = true;
     }
-  
-  //CASO FIJO PARPADEANTE
+
+    //CASO FIJO PARPADEANTE
   } else if (dir == "FP") {
 
     //Mostramos mensaje
@@ -1595,10 +1623,10 @@ function ponerTextoStatico(texto, dir, font, speed, pause, color) {
         }
 
         clearTimeout(timeoutId);
-        
+
         //Tiempo de espera entre encendido y apagado
         done = true;
-        timeoutId = setTimeout(function () { 
+        timeoutId = setTimeout(function () {
           contar++;
           done = false;
         }, 800);
@@ -1639,6 +1667,6 @@ function ponerTextoStatico(texto, dir, font, speed, pause, color) {
   }
 
   if (fin == false) {
-    scrollControl = setInterval(ponerTextoStatico, tiempoScroll-(speed*2), texto, dir, font, speed, pause, color);
+    scrollControl = setInterval(ponerTextoStatico, tiempoScroll - (speed * 2), texto, dir, font, speed, pause, color);
   }
 }
