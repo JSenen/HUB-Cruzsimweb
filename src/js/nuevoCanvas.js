@@ -39,7 +39,7 @@ dibujarAnimacion();
 
 
 ////////////////////////////////////  POR HACER //////////////////////////////
-/ Variables globales para el canvas y su contexto
+// Variables globales para el canvas y su contexto
 var canvas;
 var ctx;
 

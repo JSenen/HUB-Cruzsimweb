@@ -47,7 +47,12 @@ var timeoutId;
 
 var animationled;
 let fileAnimation;
-var jsonData;
+let jsonData;
+
+
+// Variables globales para la máscara
+var maskCanvas;
+var maskCtx;
 
 //Código al cargar la página
 window.onload = function () {
@@ -118,6 +123,8 @@ function dibujarAnimacion() {
   console.log("framesNum establecido:", framesNum);
   console.log("stop:", stop);
   console.log("z dibujarAnimacion()", z);
+  console.log("dataJsonMask = ", dataJsonMask);
+
 
   // Verifica si se han ejecutado todos los cuadros
   if (frameCounter >= framesNum - 1 || stop) {
@@ -170,7 +177,7 @@ function dibujarAnimacion() {
         ctx.drawImage(bmpRojo, x, y);
         break;
         
-      default:
+      default: //Pixeles interiores mascara
         ctx.drawImage(bmpApagado, x, y);
 
     }
@@ -203,7 +210,7 @@ function dibujarAnimacion() {
         ctx.drawImage(bmpApagado, x, y);
     }
     x += 10;
-    switch (LEDColor4) {
+    switch (LEDColor4) {  
       case 0:
         ctx.drawImage(bmpApagado, x, y);
         break;
@@ -226,6 +233,7 @@ function dibujarAnimacion() {
       y += 10;
     }
   }
+  
   
   // =======  CANVAS SUPERPOSICION ANIMACION CUADRADOS EN LAS ESQUINAS =============== //
    // Cuadrado superior izquierdo
@@ -369,7 +377,9 @@ function playSequence() {
   reader.onload = function (e) {
     var contents = e.target.result;
     var jsonData = JSON.parse(contents);
-
+    console.log("playSequence JsonData",jsonData);
+    let dataJsonMask = jsonData; // JSON creado para llevar la mascara al dibujarAnimacion();
+    console.log("playSequence dataJsonMask",dataJsonMask)
     espera = 0;
     z = 0;
     acabar = 0;
@@ -755,11 +765,14 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
         }
 
       } else if (action_orla == false && (mascara[i][j] == 4 || mascara[i][j] == 5 || mascara[i][j] == 6)) {
+        
         ctx.drawImage(bmpApagado, x, y);
+       
       }
 
       if (mascara[i][j] == 0) {
         ctx.drawImage(bmpBlanco, x, y);
+        
       }
 
       //Dibujamos la cruz
