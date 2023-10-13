@@ -254,8 +254,15 @@ function playAnimacion(fileName, fileData, dataJsonMAsk) {
   //detenerAnimacionLED();
 }
 
+// Obtén el color del píxel en una ubicación específica (por ejemplo, coordenadas x, y)
+function getColorAtPixel(ctx, x, y) {
+  const pixel = ctx.getImageData(x, y, 1, 1); // Obtiene los datos de color de un píxel
+  const [r, g, b] = pixel.data; // Obtiene los valores de los componentes de color (rojo, verde, azul)
+  return { r, g, b };
+}
+
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
-function dibujarAnimacion(jsonDataMask) {
+function dibujarAnimacion(dataJsonMAsk) {
   var x = 0;
   var y = 0;
   var i;
@@ -296,11 +303,13 @@ function dibujarAnimacion(jsonDataMask) {
   x = 0;
   y = 0;
 
-  // Llena el canvas con color blanco al inicio
-  ctx.fillStyle = 'white';
-  ctx.fillRect(0, 0, 560, 560);
+  const backgroundColor = getColorAtPixel(ctx, 0, 0);
 
-  ctx.globalCompositeOperation = "source-over"; // Restauramos la operación de composición a "source-over"
+  if (backgroundColor.r === 0 && backgroundColor.g === 0 && backgroundColor.b === 0) {
+    // El fondo es negro, puedes continuar con el dibujo
+    ctx.globalCompositeOperation = "source-over"; // Restauramos la operación de composición a "source-over"
+
+  
 
   for (i = 0; i < frameBytes.length; i++) {
     // procesar byte de streamBMP
@@ -316,7 +325,8 @@ function dibujarAnimacion(jsonDataMask) {
     LEDColor3 = datoLed & colorMask3;
     LEDColor4 = datoLed & colorMask4;
 
-    if (jsonDataMask[contadorFila][contadorLed] === 0) {
+    console.log("dibujarAnimacion() IF dataJsonMAsk = ",dataJsonMAsk);
+    if (dataJsonMAsk.mask_coreFC1[contadorFila][contadorLed] === 0) {
       // Si la máscara es negra, dibuja el LED
       ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
       switch (LEDColor1) {
@@ -336,7 +346,7 @@ function dibujarAnimacion(jsonDataMask) {
 
     x += 10;
 
-    if (jsonDataMask[contadorFila][contadorLed + 1] === 0) {
+    if (dataJsonMAsk.mask_coreFC2[contadorFila][contadorLed + 1] === 0) {
       ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
       switch (LEDColor2) {
         case 0:
@@ -355,7 +365,7 @@ function dibujarAnimacion(jsonDataMask) {
 
     x += 10;
 
-    if (jsonDataMask[contadorFila][contadorLed + 2] === 0) {
+    if (dataJsonMAsk.mask_orlaFC1[contadorFila][contadorLed + 2] === 0) {
       ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
       switch (LEDColor3) {
         case 0:
@@ -374,7 +384,7 @@ function dibujarAnimacion(jsonDataMask) {
 
     x += 10;
 
-    if (jsonDataMask[contadorFila][contadorLed + 3] === 0) {
+    if (dataJsonMAsk.mask_orlaFC2[contadorFila][contadorLed + 3] === 0) {
       ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
       switch (LEDColor4) {
         case 0:
@@ -401,7 +411,7 @@ function dibujarAnimacion(jsonDataMask) {
       y += 10;
     }
   }
-
+  
   frameCounter++;
 
   if (frameCounter < framesNum) {
@@ -413,6 +423,7 @@ function dibujarAnimacion(jsonDataMask) {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
+}
 }
 
 //Funcion deteniene animacion fichero Led una vez finalzida
@@ -847,7 +858,7 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   } else {
     console.log("cross_mask no es un objeto o no está definido en el JSON.");
   }
-    playAnimacion(fileAnimation.fileName, fileAnimation.fileData, jsonData);
+    playAnimacion(fileAnimation.fileName, fileAnimation.fileData, cross_mask);
    
   }
 
