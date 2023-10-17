@@ -47,7 +47,7 @@ var timeoutId;
 
 var animationled;
 let fileAnimation;
-let jsonData;
+var jsonData;
 
 
 // Variables globales para la máscara
@@ -150,75 +150,27 @@ window.onload = function () {
   seccion2 = document.getElementById("seccion2");
 };
 
-/* function canvasDeMascara(jsonData) {
-  // Canvas adicional superpuesto para la animación
-  const maskCanvasSuperpuesto = document.createElement("canvas");
-  maskCanvasSuperpuesto.style.position = "absolute";
-  maskCanvasSuperpuesto.style.left = "25px"; // Ajusta la posición x
-  maskCanvasSuperpuesto.style.top = "228px"; // Ajusta la posición y
-  maskCanvasSuperpuesto.style.zIndex = "1"; // Asegura que esté encima del otro canvas
-  document.body.appendChild(maskCanvasSuperpuesto);
 
-  const maskCanvasSuperpuestoCtx = maskCanvasSuperpuesto.getContext("2d");
-
-  // Establece el tamaño de los canvas (asegúrate de que ambos tengan el mismo tamaño)
-  const canvasWidth = 560;
-  const canvasHeight = 560;
-  canvas.width = maskCanvasSuperpuesto.width = canvasWidth;
-  canvas.height = maskCanvasSuperpuesto.height = canvasHeight;
-
-  // Matrices del JSON que definen la máscara de la cruz
-  const maskMatrix = jsonData.mask_coreFC1;
-  const maskMatrixFC2 = jsonData.mask_coreFC2;
-  const maskMatrixOrlaFC1 = jsonData.mask_orlaFC1;
-  const maskMatrixOrlaFC2 = jsonData.mask_orlaFC2;
-
-  // Dibuja la cruz en el canvas de la máscara
-  maskCanvasSuperpuestoCtx.fillStyle = "white"; // Establece el color de fondo en blanco
-  maskCanvasSuperpuestoCtx.fillRect(0, 0, canvasWidth, canvasHeight); // Llena todo el canvas superpuesto de blanco
-
-  maskCanvasSuperpuestoCtx.fillStyle = "black"; // Establece el color de dibujo en negro
-
-  function drawMatrix(matrix) {
-    for (let i = 0; i < matrix.length; i++) {
-      for (let j = 0; j < matrix[i].length; j++) {
-        if (matrix[i][j] !== 65535) {
-          maskCanvasSuperpuestoCtx.fillRect(i * 10, j * 10, 10, 10); // Dibuja en negro donde no es 65535
-        }
-      }
-    }
-  }
-
-  // Dibuja las matrices en el canvas superpuesto
-  drawMatrix(maskMatrix);
-  drawMatrix(maskMatrixFC2);
-  drawMatrix(maskMatrixOrlaFC1);
-  drawMatrix(maskMatrixOrlaFC2);
-
-  // Aplica la máscara de la cruz en el canvas principal
-  ctx.save();
-  ctx.globalCompositeOperation = "destination-out"; // Cambia la operación de composición a "destination-out"
-  ctx.drawImage(maskCanvasSuperpuesto, 0, 0);
-  ctx.restore();
-} */
 function dibujarCanvasPersonalizado(jsonData, ctx) {
+  console.log("dibujarCanvasPersonalizado() jsonData = ",jsonData);
   // Matrices del JSON que definen la máscara de la cruz
   const maskMatrix = jsonData.mask_coreFC1;
   const maskMatrixFC2 = jsonData.mask_coreFC2;
   const maskMatrixOrlaFC1 = jsonData.mask_orlaFC1;
   const maskMatrixOrlaFC2 = jsonData.mask_orlaFC2;
 
-  // Dibuja la cruz en el canvas principal
-  ctx.fillStyle = "white"; // Establece el color de fondo en blanco
-  ctx.fillRect(0, 0, canvas.width, canvas.height); // Llena todo el canvas de blanco
+ // Cambiar el color de fondo del canvas a transparente
+ ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas para que sea transparente
 
-  ctx.fillStyle = "black"; // Establece el color de dibujo en negro
+ ctx.fillStyle = "black"; // Establece el color de dibujo en negro
 
   function drawMatrix(matrix) {
     for (let i = 0; i < matrix.length; i++) {
       for (let j = 0; j < matrix[i].length; j++) {
         if (matrix[i][j] !== 65535) {
           ctx.fillRect(i * 10, j * 10, 10, 10); // Dibuja en negro donde no es 65535
+          // Restablece el valor alfa para trasparencia
+          //ctx.globalAlpha = 0.5;
         }
       }
     }
@@ -231,9 +183,9 @@ function dibujarCanvasPersonalizado(jsonData, ctx) {
 }
 
 //Funcion carga el fichero .led para procesarlo
-function playAnimacion(fileName, fileData, dataJsonMAsk) {
+function playAnimacion(fileName, fileData) {
 
-  console.log("Inicio funcion playAnimacion()");
+  console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
   z = z + 2 //Sumamos +2 para que la animacion solo se ejecute una vez
   //Lee el contenido del archivo .led proporcionado en formato base64
@@ -243,14 +195,16 @@ function playAnimacion(fileName, fileData, dataJsonMAsk) {
   frameCounter = 0
   bytesOffet = 0;
   stop = false;
+  
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
-  console.log("playAnimacion() LLama a dibujarAnimacion() se envia dataJsonMAsk =  ",typeof dataJsonMAsk);
-  //Ejecuta función despues de tiempo establecido por delayInicioAnimacion
-  //Se crea funcion anónima para poder pasar el jsonDataMAsk
+  
   frameControl = setTimeout(function() {
-    dibujarAnimacion(dataJsonMAsk);
+    dibujarAnimacion();
 }, delayInicioAnimación);
+
+// Restaura la configuración original de globalCompositeOperation
+  //ctx.globalCompositeOperation = "source-over";
   //detenerAnimacionLED();
 }
 
@@ -262,7 +216,8 @@ function getColorAtPixel(ctx, x, y) {
 }
 
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
-function dibujarAnimacion(dataJsonMAsk) {
+ function dibujarAnimacion() {
+
   var x = 0;
   var y = 0;
   var i;
@@ -279,15 +234,16 @@ function dibujarAnimacion(dataJsonMAsk) {
   console.log("dibujarAnimacion() z ", z);
 
   // Verifica si se han ejecutado todos los cuadros
-  if (frameCounter >= framesNum - 1 || stop) {
+  if (frameCounter >= framesNum - 1 ) {
     console.log("dibujarAnimacion() verifica frameCounter >= framesNum o stop");
     clearInterval(frameControl);
-    console.log("dibujarAnimacion() frameControl liberado");
+    console.log("dibujarAnimacion() frameControl liberado z = ",z-2);
     frameControl = null;
-    detenerAnimacionLED(z);
+    ctx.globalCompositeOperation = "source-over";
+    detenerAnimacionLED(z-2);
     return;
   }
-
+  
   // Leer pausa
   let framePause = 0;
   framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
@@ -302,15 +258,7 @@ function dibujarAnimacion(dataJsonMAsk) {
   contadorFila = 0;
   x = 0;
   y = 0;
-
-  const backgroundColor = getColorAtPixel(ctx, 0, 0);
-
-  if (backgroundColor.r === 0 && backgroundColor.g === 0 && backgroundColor.b === 0) {
-    // El fondo es negro, puedes continuar con el dibujo
-    ctx.globalCompositeOperation = "source-over"; // Restauramos la operación de composición a "source-over"
-
   
-
   for (i = 0; i < frameBytes.length; i++) {
     // procesar byte de streamBMP
     let datoLed = frameBytes[i];
@@ -319,16 +267,15 @@ function dibujarAnimacion(dataJsonMAsk) {
     let colorMask3 = 0b00001100;
     let colorMask4 = 0b00000011;
 
+    ctx.globalCompositeOperation = "lighten";
+
     // obtener color de cada LED en las posiciones de la máscara
     LEDColor1 = datoLed & colorMask1;
     LEDColor2 = datoLed & colorMask2;
     LEDColor3 = datoLed & colorMask3;
     LEDColor4 = datoLed & colorMask4;
 
-    console.log("dibujarAnimacion() IF dataJsonMAsk = ",dataJsonMAsk);
-    if (dataJsonMAsk.mask_coreFC1[contadorFila][contadorLed] === 0) {
-      // Si la máscara es negra, dibuja el LED
-      ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
+    
       switch (LEDColor1) {
         case 0:
           ctx.drawImage(bmpApagado, x, y);
@@ -342,12 +289,10 @@ function dibujarAnimacion(dataJsonMAsk) {
         default:
           ctx.drawImage(bmpApagado, x, y);
       }
-    }
-
+    
+    
     x += 10;
 
-    if (dataJsonMAsk.mask_coreFC2[contadorFila][contadorLed + 1] === 0) {
-      ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
       switch (LEDColor2) {
         case 0:
           ctx.drawImage(bmpApagado, x, y);
@@ -361,12 +306,10 @@ function dibujarAnimacion(dataJsonMAsk) {
         default:
           ctx.drawImage(bmpApagado, x, y);
       }
-    }
+      
 
     x += 10;
 
-    if (dataJsonMAsk.mask_orlaFC1[contadorFila][contadorLed + 2] === 0) {
-      ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
       switch (LEDColor3) {
         case 0:
           ctx.drawImage(bmpApagado, x, y);
@@ -380,12 +323,9 @@ function dibujarAnimacion(dataJsonMAsk) {
         default:
           ctx.drawImage(bmpApagado, x, y);
       }
-    }
-
+  
     x += 10;
 
-    if (dataJsonMAsk.mask_orlaFC2[contadorFila][contadorLed + 3] === 0) {
-      ctx.globalCompositeOperation = "source-over"; // Restablece la operación de composición
       switch (LEDColor4) {
         case 0:
           ctx.drawImage(bmpApagado, x, y);
@@ -399,7 +339,7 @@ function dibujarAnimacion(dataJsonMAsk) {
         default:
           ctx.drawImage(bmpApagado, x, y);
       }
-    }
+    
 
     x += 10;
     contadorLed++;
@@ -410,6 +350,7 @@ function dibujarAnimacion(dataJsonMAsk) {
       x = 0;
       y += 10;
     }
+    
   }
   
   frameCounter++;
@@ -419,15 +360,12 @@ function dibujarAnimacion(dataJsonMAsk) {
     stop = false;
   } else {
     stop = true;
-    // Al final de la animación, llenar el canvas con blanco
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
   }
 }
-}
-
+ 
 //Funcion deteniene animacion fichero Led una vez finalzida
-function detenerAnimacionLED() {
+function detenerAnimacionLED(z) {
 
   document.getElementById("textoInfo").innerHTML = "animacion LED detenida .. continua secuencia"; // Mostrar un mensaje de finalización
   console.log("Inicio funcion detenerAnimacion()");
@@ -858,7 +796,8 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   } else {
     console.log("cross_mask no es un objeto o no está definido en el JSON.");
   }
-    playAnimacion(fileAnimation.fileName, fileAnimation.fileData, cross_mask);
+  
+    playAnimacion(fileAnimation.fileName, fileAnimation.fileData);
    
   }
 
