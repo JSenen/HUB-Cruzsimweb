@@ -198,13 +198,13 @@ function playAnimacion(fileName, fileData) {
   
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
-  
+ 
   frameControl = setTimeout(function() {
     dibujarAnimacion();
 }, delayInicioAnimación);
 
 // Restaura la configuración original de globalCompositeOperation
-  //ctx.globalCompositeOperation = "source-over";
+  ctx.globalCompositeOperation = "destination-over";
   //detenerAnimacionLED();
 }
 
@@ -353,7 +353,7 @@ function getColorAtPixel(ctx, x, y) {
     }
     
   }
-  
+  ctx.globalCompositeOperation = "destination-over";
   frameCounter++;
 
   if (frameCounter < framesNum) {
@@ -797,7 +797,7 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   } else {
     console.log("cross_mask no es un objeto o no está definido en el JSON.");
   }
-  
+    
     playAnimacion(fileAnimation.fileName, fileAnimation.fileData);
    
   }
