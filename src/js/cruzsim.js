@@ -267,6 +267,7 @@ function getColorAtPixel(ctx, x, y) {
     let colorMask3 = 0b00001100;
     let colorMask4 = 0b00000011;
 
+    //Fusionamos la mascara con la imagen generada en el fichero .led
     ctx.globalCompositeOperation = "lighten";
 
     // obtener color de cada LED en las posiciones de la máscara
