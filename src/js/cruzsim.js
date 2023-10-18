@@ -180,6 +180,7 @@ function dibujarCanvasPersonalizado(jsonData, ctx) {
   drawMatrix(maskMatrixFC2);
   drawMatrix(maskMatrixOrlaFC1);
   drawMatrix(maskMatrixOrlaFC2);
+  
 }
 
 //Funcion carga el fichero .led para procesarlo
@@ -239,7 +240,7 @@ function getColorAtPixel(ctx, x, y) {
     clearInterval(frameControl);
     console.log("dibujarAnimacion() frameControl liberado z = ",z-2);
     frameControl = null;
-    ctx.globalCompositeOperation = "source-over";
+    //ctx.globalCompositeOperation = "source-over";
     detenerAnimacionLED(z-2);
     return;
   }
@@ -267,6 +268,7 @@ function getColorAtPixel(ctx, x, y) {
     let colorMask3 = 0b00001100;
     let colorMask4 = 0b00000011;
 
+    
     //Fusionamos la mascara con la imagen generada en el fichero .led
     ctx.globalCompositeOperation = "lighten";
 
@@ -351,9 +353,9 @@ function getColorAtPixel(ctx, x, y) {
       x = 0;
       y += 10;
     }
-    
+    ctx.globalCompositeOperation = "source-over";
   }
-  ctx.globalCompositeOperation = "destination-over";
+  
   frameCounter++;
 
   if (frameCounter < framesNum) {
