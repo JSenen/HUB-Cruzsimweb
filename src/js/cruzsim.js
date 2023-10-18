@@ -46,7 +46,7 @@ var bucle;
 var timeoutId;
 
 var animationled;
-let fileAnimation;
+var fileAnimation;
 var jsonData;
 
 
@@ -96,16 +96,17 @@ console.log("La coordenada y del CANVA es: " + canvasTop);
 }; */
 // Código al cargar la página
 window.onload = function () {
-  document.getElementById("textoInfo").innerHTML = "Inicio onLoad";
+  document.getElementById("textoInfo").innerHTML = "Seleccione mascará y secuencia";
 
   // Se crea el CANVAS 560 x 560 en el cuerpo del documento
   canvas = document.createElement('canvas');
   canvas.width = 560;
   canvas.height = 560;
-  document.getElementById("textoInfo").innerHTML = "appendChild(canvas)";
+  //document.getElementById("textoInfo").innerHTML = "appendChild(canvas)";
   document.body.appendChild(canvas)
+  
   ctx = canvas.getContext("2d");
-  document.getElementById("textoInfo").innerHTML = "createElement('img')";
+  //document.getElementById("textoInfo").innerHTML = "createElement('img')";
 
   // Para conocer coordenadas del canvas
   const canvasLeft = canvas.offsetLeft;
@@ -169,8 +170,7 @@ function dibujarCanvasPersonalizado(jsonData, ctx) {
       for (let j = 0; j < matrix[i].length; j++) {
         if (matrix[i][j] !== 65535) {
           ctx.fillRect(i * 10, j * 10, 10, 10); // Dibuja en negro donde no es 65535
-          // Restablece el valor alfa para trasparencia
-          //ctx.globalAlpha = 0.5;
+
         }
       }
     }
@@ -185,7 +185,8 @@ function dibujarCanvasPersonalizado(jsonData, ctx) {
 
 //Funcion carga el fichero .led para procesarlo
 function playAnimacion(fileName, fileData) {
-
+  console.log("playAnimacion() source-over");
+  ctx.globalCompositeOperation = "source-over";
   console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
   z = z + 2 //Sumamos +2 para que la animacion solo se ejecute una vez
@@ -199,13 +200,13 @@ function playAnimacion(fileName, fileData) {
   
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
- 
+  ctx.globalCompositeOperation = "copy";
   frameControl = setTimeout(function() {
     dibujarAnimacion();
 }, delayInicioAnimación);
 
 // Restaura la configuración original de globalCompositeOperation
-  ctx.globalCompositeOperation = "destination-over";
+  ctx.globalCompositeOperation = "source-over";
   //detenerAnimacionLED();
 }
 
@@ -218,7 +219,7 @@ function getColorAtPixel(ctx, x, y) {
 
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
  function dibujarAnimacion() {
-
+  
   var x = 0;
   var y = 0;
   var i;
@@ -227,16 +228,22 @@ function getColorAtPixel(ctx, x, y) {
   var LEDColor2;
   var LEDColor3;
   var LEDColor4;
-
+  
   console.log("Inicio dibujarAnimacion()");
   console.log("dibujarAnimacion() frameCounter recibido:", frameCounter);
   console.log("dibujarAnimacion() framesNum establecido:", framesNum);
   console.log("dibujarAnimacion() stop:", stop);
   console.log("dibujarAnimacion() z ", z);
 
-  // Verifica si se han ejecutado todos los cuadros
-  if (frameCounter >= framesNum - 1 ) {
-    console.log("dibujarAnimacion() verifica frameCounter >= framesNum o stop");
+  // Leer pausa
+  let framePause = 0;
+  framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
+  framePause = framePause * PAUSE_MS;
+  bytesOffet = bytesOffet + 6;
+
+   // Verifica si se han ejecutado todos los cuadros
+   if (frameCounter >= framesNum - 1 ) {
+    console.log("dibujarAnimacion() verifica frameCounter >= framesNum-1");
     clearInterval(frameControl);
     console.log("dibujarAnimacion() frameControl liberado z = ",z-2);
     frameControl = null;
@@ -244,12 +251,6 @@ function getColorAtPixel(ctx, x, y) {
     detenerAnimacionLED(z-2);
     return;
   }
-  
-  // Leer pausa
-  let framePause = 0;
-  framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
-  framePause = framePause * PAUSE_MS;
-  bytesOffet = bytesOffet + 6;
 
   for (n = 0; n < FRAME_SIZE; n++) {
     frameBytes[n] = aniBytes[n + bytesOffet];
@@ -353,7 +354,7 @@ function getColorAtPixel(ctx, x, y) {
       x = 0;
       y += 10;
     }
-    ctx.globalCompositeOperation = "source-over";
+    
   }
   
   frameCounter++;
@@ -361,10 +362,15 @@ function getColorAtPixel(ctx, x, y) {
   if (frameCounter < framesNum) {
     frameControl = setTimeout(dibujarAnimacion, framePause);
     stop = false;
+    
   } else {
     stop = true;
     
   }
+  //Restaura la configuración original de globalCompositeOperation
+  ctx.globalCompositeOperation = "source-over";
+  
+  
 }
  
 //Funcion deteniene animacion fichero Led una vez finalzida
