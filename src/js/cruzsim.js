@@ -103,6 +103,20 @@ window.onload = function () {
       };
       reader.readAsText(file);
     }
+    if (fileInput.files.length > 0) {
+      const archivoSeleccionado = fileInput.files[0];
+      cargarYProcesarJSON(archivoSeleccionado, ctx);
+      // Un archivo ha sido seleccionado, ahora se carga y procesa el JSON asociado.
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const contents = e.target.result;
+        const jsonDataCTX = JSON.parse(contents);
+
+        // Llama a la función para dibujar el canvas personalizado
+        dibujarCanvasPersonalizado(jsonDataCTX, ctx);
+      };
+      reader.readAsText(file);
+    }
   });
 
   //Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
