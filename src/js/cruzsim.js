@@ -47,53 +47,14 @@ var timeoutId;
 
 var animationled;
 var fileAnimation;
-var jsonData;
+var jsonDataCTX;
 
 
 // Variables globales para la máscara
 var maskCanvas;
 var maskCtx;
 
-/* //Código al cargar la página
-window.onload = function () {
-  document.getElementById("textoInfo").innerHTML = "inicio onLoad";
-  // Se crea el CANVAS 560 x 560  en el cuerpo del documento
-  canvas = document.createElement('canvas');
-  canvas.width = 560;
-  canvas.height = 560;
-  document.getElementById("textoInfo").innerHTML = "appendChild(canvas)";
-  document.body.appendChild(canvas)
-  document.getElementById("textoInfo").innerHTML = "canvas.getContext";
-  ctx = canvas.getContext("2d");
-  document.getElementById("textoInfo").innerHTML = "createElement('img')";
 
-  //Para conocer coordenadas del canvas
-  const canvasLeft = canvas.offsetLeft;
-  const canvasTop = canvas.offsetTop;
-
-console.log("La coordenada x del CANVA es: " + canvasLeft);
-console.log("La coordenada y del CANVA es: " + canvasTop);
-
-  bmpApagado = document.createElement('img');
-  bmpApagado.src = "../bmp/led_negro_10.bmp";
-  bmpVerde = document.createElement('img');
-  bmpVerde.src = "../bmp/led_verde_negro_10.bmp";
-  bmpRojo = document.createElement('img');
-  bmpRojo.src = "../bmp/led_rojo_negro_10.bmp";
-  bmpAmarillo = document.createElement('img');
-  bmpAmarillo.src = "../bmp/led_amarillo_negro_10.bmp";
-  bmpBlanco = document.createElement('img');
-  bmpBlanco.src = "../bmp/led_blanco_10.bmp";
-
-
-  // Se obtiene una referencia al formulario HTML con la clase "seqForm" y se agrega un controlador de eventos para el evento de envío del formulario (submit).
-  document.getElementById("textoInfo").innerHTML = "Iniciar secuencia.";
-  //Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
-  form = document.querySelector('.seqForm');
-  form.addEventListener('submit', handleFormSubmit);
-  seccion1 = document.getElementById("seccion1");
-  seccion2 = document.getElementById("seccion2");
-}; */
 // Código al cargar la página
 window.onload = function () {
   document.getElementById("textoInfo").innerHTML = "Seleccione mascará y secuencia";
@@ -131,14 +92,14 @@ window.onload = function () {
   fileInput.addEventListener('change', function (event) {
     const file = event.target.files[0]; // Obtiene el primer archivo seleccionado
     if (file) {
-      // Un archivo ha sido seleccionado, ahora puedes cargar y procesar el JSON asociado.
+      // Un archivo ha sido seleccionado, ahora se carga y procesa el JSON asociado.
       const reader = new FileReader();
       reader.onload = function (e) {
         const contents = e.target.result;
-        const jsonData = JSON.parse(contents);
+        const jsonDataCTX = JSON.parse(contents);
 
         // Llama a la función para dibujar el canvas personalizado
-        dibujarCanvasPersonalizado(jsonData, ctx);
+        dibujarCanvasPersonalizado(jsonDataCTX, ctx);
       };
       reader.readAsText(file);
     }
@@ -152,13 +113,17 @@ window.onload = function () {
 };
 
 
-function dibujarCanvasPersonalizado(jsonData, ctx) {
-  console.log("dibujarCanvasPersonalizado() jsonData = ",jsonData);
+function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
+
+  // Limpia el canvas con un fondo negro
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
   // Matrices del JSON que definen la máscara de la cruz
-  const maskMatrix = jsonData.mask_coreFC1;
-  const maskMatrixFC2 = jsonData.mask_coreFC2;
-  const maskMatrixOrlaFC1 = jsonData.mask_orlaFC1;
-  const maskMatrixOrlaFC2 = jsonData.mask_orlaFC2;
+  const maskMatrix = jsonDataCTX.mask_coreFC1;
+  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2;
+  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1;
+  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;
 
  // Cambiar el color de fondo del canvas a transparente
  ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas para que sea transparente
@@ -185,8 +150,7 @@ function dibujarCanvasPersonalizado(jsonData, ctx) {
 
 //Funcion carga el fichero .led para procesarlo
 function playAnimacion(fileName, fileData) {
-  console.log("playAnimacion() source-over");
-  ctx.globalCompositeOperation = "source-over";
+  
   console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
   z = z + 2 //Sumamos +2 para que la animacion solo se ejecute una vez
@@ -206,7 +170,7 @@ function playAnimacion(fileName, fileData) {
 }, delayInicioAnimación);
 
 // Restaura la configuración original de globalCompositeOperation
-  ctx.globalCompositeOperation = "source-over";
+  //ctx.globalCompositeOperation = "source-over";
   //detenerAnimacionLED();
 }
 
@@ -235,6 +199,8 @@ function getColorAtPixel(ctx, x, y) {
   console.log("dibujarAnimacion() stop:", stop);
   console.log("dibujarAnimacion() z ", z);
 
+ 
+
   // Leer pausa
   let framePause = 0;
   framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
@@ -247,7 +213,6 @@ function getColorAtPixel(ctx, x, y) {
     clearInterval(frameControl);
     console.log("dibujarAnimacion() frameControl liberado z = ",z-2);
     frameControl = null;
-    //ctx.globalCompositeOperation = "source-over";
     detenerAnimacionLED(z-2);
     return;
   }
@@ -262,6 +227,7 @@ function getColorAtPixel(ctx, x, y) {
   y = 0;
   
   for (i = 0; i < frameBytes.length; i++) {
+    
     // procesar byte de streamBMP
     let datoLed = frameBytes[i];
     let colorMask1 = 0b11000000;
@@ -347,6 +313,7 @@ function getColorAtPixel(ctx, x, y) {
 
     x += 10;
     contadorLed++;
+ 
     // control de línea
     if (contadorLed == 14) {
       contadorLed = 0;
@@ -391,7 +358,7 @@ function detenerAnimacionLED(z) {
     z = 0;
     console.log("detenerAnimacionLED() z > actions.length-1 , z =", z," actions.lenght = ",actions.length);
     console.log("detenerAnimacionLED() llamada a showAction()");
-    showAction(action[z], jsonData);
+    showAction(action[z], jsonDataCTX);
   }
 
 }
@@ -473,11 +440,11 @@ function playSequence() {
   var file = fileInput.files[0]; // Obtiene el primer archivo seleccionado
   var reader = new FileReader();
   reader.readAsText(file);
-
+  
   reader.onload = function (e) {
     var contents = e.target.result;
-    var jsonData = JSON.parse(contents);
-    console.log("playSequence() mask:coreFC1.json = ", jsonData.mask_coreFC1);
+    var jsonDataCTX = JSON.parse(contents);
+    console.log("playSequence() mask:coreFC1.json = ", jsonDataCTX.mask_coreFC1);
     
     espera = 0;
     z = 0;
@@ -487,7 +454,7 @@ function playSequence() {
     primera_vez = true;
     done = false;
     console.log("playSequence() llamada a myLoop()");
-    myLoop(jsonData);
+    myLoop(jsonDataCTX);
   };
 }
 
@@ -495,16 +462,18 @@ function playSequence() {
 /**
  * Funcion bucle que ejecuta las acciones de la secuencia de manera ciclica.
  * 
- * @param {JSON} jsonData json con las mascaras de la cruz, que indican su forma y los colore disponibles.
+ * @param {JSON} jsonDataCTX json con las mascaras de la cruz, que indican su forma y los colore disponibles.
  */
-function myLoop(jsonData) {
+function myLoop(jsonDataCTX) {
+  
   setTimeout(function () {
 
     if (fin) {
       // Realizamos siguiente acción
       console.log("Inicio myLoop() fin = ",fin, " z = ",z);
       console.log("myLoop() llamda a showAction()");
-      showAction(actions[z], jsonData);
+      showAction(actions[z], jsonDataCTX);
+
       z++;
       console.log("myLoop() z +1 z = ",z);
       // Si se ha llegado al final de la secuencia, vuelta al principio
@@ -518,7 +487,7 @@ function myLoop(jsonData) {
 
     // Mientras no se pare y no se esté reproduciendo una animación, se continua de forma cíclica
     if (!end) {
-      myLoop(jsonData);
+      myLoop(jsonDataCTX);
     } else {
       isAnimatig = false; // Controlar restablecer la bandera si se detiene la secuencia
     }
@@ -530,11 +499,12 @@ function myLoop(jsonData) {
  * Funcion que obtiene los parametros de las acciones dentro de una secuencia y la ejecuta.
  * 
  * @param {*} action accion de la secuencia a realizar
- * @param {*} jsonData json con las mascaras de la cruz, que indican su forma y los colore disponibles.
+ * @param {*} jsonDataCTX json con las mascaras de la cruz, que indican su forma y los colore disponibles.
  */
-function showAction(action, jsonData) {
+function showAction(action, jsonDataCTX) {
 
   console.log("Inicio showAction() ");
+  
 
   //Obtenemos los parametros de la accion para un uso mas sencillo de la informacion
   var mensaje;                                                  //Mensaje a mostrar
@@ -621,7 +591,7 @@ function showAction(action, jsonData) {
  
 
   //Con los parametros, se procede a mostrar 
-  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled, fileAnimation);
+  animation(jsonDataCTX, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled, fileAnimation);
 }
 
 
@@ -782,6 +752,8 @@ function findValue(array, num) {
  * @param {int} action_led numero de filas de led a partir del cual mostrar el mensaje (Este valor viene derivado del valor de FILA)
  */
 function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led, animationled, fileAnimation) {
+
+
   console.log("Inicio animation()");
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
@@ -793,8 +765,9 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
 
   //================= SELECTION ANIMACION FICHERO LED =====================
   if (animationled) {
+
     console.log("animation() -> Recibe animationled = ", animationled, " llamada a playAnimacion() z = ",z);
-    console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData = ",fileAnimation.fileData);
+console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData = ",fileAnimation.fileData);
     console.log("animation() contenido cross_mask", cross_mask);
      // Verifica si cross_mask existe en jsonData y es un objeto
   if (cross_mask && typeof cross_mask === 'object') {
