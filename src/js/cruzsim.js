@@ -55,6 +55,7 @@ var maskCanvas;
 var maskCtx;
 
 
+
 // Código al cargar la página
 window.onload = function () {
   document.getElementById("textoInfo").innerHTML = "Seleccione mascará y secuencia";
@@ -96,13 +97,14 @@ window.onload = function () {
       const reader = new FileReader();
       reader.onload = function (e) {
         const contents = e.target.result;
-        const jsonDataCTX = JSON.parse(contents);
+        jsonDataCTX = JSON.parse(contents);
 
         // Llama a la función para dibujar el canvas personalizado
         dibujarCanvasPersonalizado(jsonDataCTX, ctx);
       };
       reader.readAsText(file);
     }
+    //Comprueba si ya existe un archivo en el campo mascaara
     if (fileInput.files.length > 0) {
       const archivoSeleccionado = fileInput.files[0];
       cargarYProcesarJSON(archivoSeleccionado, ctx);
@@ -127,7 +129,7 @@ window.onload = function () {
 };
 
 
-function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
+/* function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
 
   // Limpia el canvas con un fondo negro
   ctx.fillStyle = "black";
@@ -161,9 +163,73 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   drawMatrix(maskMatrixOrlaFC2);
   
 }
+ */
 
+function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
+  // Limpia el canvas con un fondo negro
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Matrices del JSON que definen la máscara de la cruz
+  const maskMatrix = jsonDataCTX.mask_coreFC1;
+  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2;
+  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1;
+  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;
+
+  // Cambiar el color de dibujo en blanco
+  ctx.fillStyle = "white";
+
+  function drawMatrix(matrix) {
+    // Inicia el trazado de la forma de recorte
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < matrix.length; i++) {
+      for (let j = 0; j < matrix[i].length; j++) {
+        if (matrix[i][j] != 65535) {
+          // Crea una forma que define el área de recorte (donde el valor es 65535)
+          ctx.rect(i * 10, j * 10, 10, 10);
+        }
+      }
+    }
+
+    // Aplica el recorte inverso
+    //ctx.clip("evenodd");
+
+    // Llena el canvas con el color blanco (o el color de fondo deseado)
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Restablece el contexto sin recorte
+    ctx.restore();
+  }
+
+  // Dibuja las matrices en el canvas
+  drawMatrix(maskMatrix);
+  drawMatrix(maskMatrixFC2);
+  drawMatrix(maskMatrixOrlaFC1);
+  drawMatrix(maskMatrixOrlaFC2);
+}
+function dibujarMascara(maskMatrix, ctx) {
+  // Define la forma de la máscara
+  ctx.beginPath();
+  for (let i = 0; i < maskMatrix.length; i++) {
+    for (let j = 0; j < maskMatrix[i].length; j++) {
+      if (maskMatrix[i][j] !== 65535) {
+        ctx.rect(i * 10, j * 10, 10, 10);
+      }
+    }
+  }
+  ctx.closePath();
+
+  // Aplica el recorte
+  ctx.clip("evenodd");
+
+  // Llena el fondo con el color de fondo deseado
+  ctx.fillStyle = "black"; // Cambia esto al color de fondo deseado
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 //Funcion carga el fichero .led para procesarlo
-function playAnimacion(fileName, fileData) {
+function playAnimacion(fileName, fileData, jsonDataCTX) {
   
   console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
@@ -178,7 +244,8 @@ function playAnimacion(fileName, fileData) {
   
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
-  ctx.globalCompositeOperation = "copy";
+  //ctx.globalCompositeOperation = "copy";
+  dibujarMascara(jsonDataCTX.mask_coreFC1, ctx);
   frameControl = setTimeout(function() {
     dibujarAnimacion();
 }, delayInicioAnimación);
@@ -230,7 +297,8 @@ function getColorAtPixel(ctx, x, y) {
     detenerAnimacionLED(z-2);
     return;
   }
-
+ // Llama a la función para dibujar la máscara en el lienzo principal
+ 
   for (n = 0; n < FRAME_SIZE; n++) {
     frameBytes[n] = aniBytes[n + bytesOffet];
   }
@@ -251,7 +319,7 @@ function getColorAtPixel(ctx, x, y) {
 
     
     //Fusionamos la mascara con la imagen generada en el fichero .led
-    ctx.globalCompositeOperation = "lighten";
+    //ctx.globalCompositeOperation = "lighten";
 
     // obtener color de cada LED en las posiciones de la máscara
     LEDColor1 = datoLed & colorMask1;
@@ -323,7 +391,7 @@ function getColorAtPixel(ctx, x, y) {
         default:
           ctx.drawImage(bmpApagado, x, y);
       }
-    
+  
 
     x += 10;
     contadorLed++;
@@ -335,9 +403,11 @@ function getColorAtPixel(ctx, x, y) {
       x = 0;
       y += 10;
     }
+
     
   }
-  
+  // Restablecer el contexto después de dibujar el cuadro
+  //ctx.restore();
   frameCounter++;
 
   if (frameCounter < framesNum) {
@@ -349,7 +419,7 @@ function getColorAtPixel(ctx, x, y) {
     
   }
   //Restaura la configuración original de globalCompositeOperation
-  ctx.globalCompositeOperation = "source-over";
+  //ctx.globalCompositeOperation = "source-over";
   
   
 }
@@ -793,7 +863,7 @@ console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData =
     console.log("cross_mask no es un objeto o no está definido en el JSON.");
   }
     
-    playAnimacion(fileAnimation.fileName, fileAnimation.fileData);
+    playAnimacion(fileAnimation.fileName, fileAnimation.fileData, jsonDataCTX);
    
   }
 
