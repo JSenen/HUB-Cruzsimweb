@@ -64,18 +64,9 @@ window.onload = function () {
   canvas = document.createElement('canvas');
   canvas.width = 560;
   canvas.height = 560;
-  //document.getElementById("textoInfo").innerHTML = "appendChild(canvas)";
   document.body.appendChild(canvas)
   
   ctx = canvas.getContext("2d");
-  //document.getElementById("textoInfo").innerHTML = "createElement('img')";
-
-  // Para conocer coordenadas del canvas
-  const canvasLeft = canvas.offsetLeft;
-  const canvasTop = canvas.offsetTop;
-
-  console.log("La coordenada x del CANVA es: " + canvasLeft);
-  console.log("La coordenada y del CANVA es: " + canvasTop);
 
   bmpApagado = document.createElement('img');
   bmpApagado.src = "../bmp/led_negro_10.bmp";
@@ -88,7 +79,7 @@ window.onload = function () {
   bmpBlanco = document.createElement('img');
   bmpBlanco.src = "../bmp/led_blanco_10.bmp";
 
-  // Adjunta un controlador de eventos al campo de entrada de archivo
+  // Adjunta un controlador de eventos al campo de entrada de archivo mascara
   const fileInput = document.getElementById('fileSelectorCrossMask');
   fileInput.addEventListener('change', function (event) {
     const file = event.target.files[0]; // Obtiene el primer archivo seleccionado
@@ -105,9 +96,9 @@ window.onload = function () {
       reader.readAsText(file);
     }
     //Comprueba si ya existe un archivo en el campo mascaara
-    if (fileInput.files.length > 0) {
+  /*   if (fileInput.files.length > 0) {
       const archivoSeleccionado = fileInput.files[0];
-      cargarYProcesarJSON(archivoSeleccionado, ctx);
+      dibujarCanvasPersonalizado(archivoSeleccionado, ctx);
       // Un archivo ha sido seleccionado, ahora se carga y procesa el JSON asociado.
       const reader = new FileReader();
       reader.onload = function (e) {
@@ -118,7 +109,7 @@ window.onload = function () {
         dibujarCanvasPersonalizado(jsonDataCTX, ctx);
       };
       reader.readAsText(file);
-    }
+    } */
   });
 
   //Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
@@ -170,6 +161,8 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  console.log("dibujarCanvasPersonal() jsonDataCTX",jsonDataCTX.mask_coreFC1);
+
   // Matrices del JSON que definen la máscara de la cruz
   const maskMatrix = jsonDataCTX.mask_coreFC1;
   const maskMatrixFC2 = jsonDataCTX.mask_coreFC2;
@@ -186,7 +179,7 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
 
     for (let i = 0; i < matrix.length; i++) {
       for (let j = 0; j < matrix[i].length; j++) {
-        if (matrix[i][j] != 65535) {
+        if (matrix[i][j] === 65535) {
           // Crea una forma que define el área de recorte (donde el valor es 65535)
           ctx.rect(i * 10, j * 10, 10, 10);
         }
@@ -198,9 +191,10 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
 
     // Llena el canvas con el color blanco (o el color de fondo deseado)
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
 
     // Restablece el contexto sin recorte
-    ctx.restore();
+    //ctx.restore();
   }
 
   // Dibuja las matrices en el canvas
@@ -229,7 +223,7 @@ function dibujarMascara(maskMatrix, ctx) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 //Funcion carga el fichero .led para procesarlo
-function playAnimacion(fileName, fileData, jsonDataCTX) {
+function playAnimacion(fileName, fileData, cross_mask) {
   
   console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
@@ -245,14 +239,11 @@ function playAnimacion(fileName, fileData, jsonDataCTX) {
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
   //ctx.globalCompositeOperation = "copy";
-  dibujarMascara(jsonDataCTX.mask_coreFC1, ctx);
+  dibujarMascara(cross_mask.mask_coreFC1, ctx);
   frameControl = setTimeout(function() {
     dibujarAnimacion();
 }, delayInicioAnimación);
 
-// Restaura la configuración original de globalCompositeOperation
-  //ctx.globalCompositeOperation = "source-over";
-  //detenerAnimacionLED();
 }
 
 // Obtén el color del píxel en una ubicación específica (por ejemplo, coordenadas x, y)
@@ -863,7 +854,7 @@ console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData =
     console.log("cross_mask no es un objeto o no está definido en el JSON.");
   }
     
-    playAnimacion(fileAnimation.fileName, fileAnimation.fileData, jsonDataCTX);
+    playAnimacion(fileAnimation.fileName, fileAnimation.fileData, cross_mask);
    
   }
 
