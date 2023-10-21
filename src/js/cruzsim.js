@@ -46,21 +46,27 @@ var bucle;
 var timeoutId;
 
 var animationled;
-let fileAnimation;
-var jsonData;
+var fileAnimation;
+var jsonDataCTX;
 
-//Código al cargar la página
+
+// Variables globales para la máscara
+var maskCanvas;
+var maskCtx;
+
+
+
+// Código al cargar la página
 window.onload = function () {
-  document.getElementById("textoInfo").innerHTML = "inicio onLoad";
-  // Se crea el CANVAS 560 x 560  en el cuerpo del documento
+  document.getElementById("textoInfo").innerHTML = "Seleccione mascará y secuencia";
+
+  // Se crea el CANVAS 560 x 560 en el cuerpo del documento
   canvas = document.createElement('canvas');
   canvas.width = 560;
   canvas.height = 560;
-  document.getElementById("textoInfo").innerHTML = "appendChild(canvas)";
   document.body.appendChild(canvas)
-  document.getElementById("textoInfo").innerHTML = "canvas.getContext";
+  
   ctx = canvas.getContext("2d");
-  document.getElementById("textoInfo").innerHTML = "createElement('img')";
 
   bmpApagado = document.createElement('img');
   bmpApagado.src = "../bmp/led_negro_10.bmp";
@@ -73,9 +79,25 @@ window.onload = function () {
   bmpBlanco = document.createElement('img');
   bmpBlanco.src = "../bmp/led_blanco_10.bmp";
 
+  // Adjunta un controlador de eventos al campo de entrada de archivo mascara
+  const fileInput = document.getElementById('fileSelectorCrossMask');
+  fileInput.addEventListener('change', function (event) {
+    const file = event.target.files[0]; // Obtiene el primer archivo seleccionado
+    if (file) {
+      // Un archivo ha sido seleccionado, ahora se carga y procesa el JSON asociado.
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const contents = e.target.result;
+        jsonDataCTX = JSON.parse(contents);
 
-  // Se obtiene una referencia al formulario HTML con la clase "seqForm" y se agrega un controlador de eventos para el evento de envío del formulario (submit).
-  document.getElementById("textoInfo").innerHTML = "Iniciar secuencia.";
+        // Llama a la función para dibujar el canvas personalizado
+        dibujarCanvasPersonalizado(jsonDataCTX, ctx);
+      };
+      reader.readAsText(file);
+    }
+
+  });
+
   //Se obtienen referencias a elementos HTML con los id "seccion1" y "seccion2".
   form = document.querySelector('.seqForm');
   form.addEventListener('submit', handleFormSubmit);
@@ -83,28 +105,123 @@ window.onload = function () {
   seccion2 = document.getElementById("seccion2");
 };
 
+
+function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
+  // Limpia el canvas con un fondo blanco
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Matrices del JSON que definen la máscara de la cruz
+  const maskMatrix = jsonDataCTX.mask_coreFC1;          //Parte central
+  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2;       // Esquinas
+  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1;   // Orla 1
+  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;   // Orla 2
+
+  // Cambiar el color de dibujo en blanco
+  ctx.fillStyle = "white";
+
+  function drawMatrix(matrix) {
+    // Inicia el trazado de la forma de recorte
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < matrix.length; i++) {
+      for (let j = 0; j < matrix[i].length; j++) {
+        if (matrix[i][j] === 65535) {
+          // Crea una forma que define el área de recorte (donde el valor es 65535 segun la máscara recibida)
+          ctx.rect(i * 10, j * 10, 10, 10);
+        }
+      }
+    }
+
+    // Llena el canvas con el color blanco (o el color de fondo deseado)
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Restablece el contexto sin recorte
+    ctx.restore();
+  }
+
+  // Dibuja las matrices en el canvas
+  drawMatrix(maskMatrix);
+  drawMatrix(maskMatrixFC2);
+  drawMatrix(maskMatrixOrlaFC1);
+  drawMatrix(maskMatrixOrlaFC2);
+}
+// Funcion dibuja las mascaras de las animaciones LED
+function dibujarMascara(maskMatrix, maskMatrix2, maskMatrixO1, maskMatrixO2, ctx, canvas) {
+  if (
+    maskMatrix.length !== maskMatrix2.length ||
+    maskMatrix[0].length !== maskMatrix2[0].length ||
+    maskMatrix.length !== maskMatrixO1.length ||
+    maskMatrix[0].length !== maskMatrixO1[0].length ||
+    maskMatrix.length !== maskMatrixO2.length ||
+    maskMatrix[0].length !== maskMatrixO2[0].length
+  ) {
+    console.error("Las matrices deben tener el mismo tamaño.");
+    return;
+  }
+
+  // Define la forma de la suma de las cuatro matrices
+  // Puntos recibidos = 65535, se eliminan para que no se vea el fondo negro de la animación
+  // Inicio de camino
+  ctx.beginPath();
+  for (let i = 0; i < maskMatrix.length; i++) {
+    for (let j = 0; j < maskMatrix[i].length; j++) {
+      if (
+        maskMatrix[i][j] !== 65535 ||
+        maskMatrix2[i][j] !== 65535 ||
+        maskMatrixO1[i][j] !== 65535 ||
+        maskMatrixO2[i][j] !== 65535
+      ) {
+        ctx.rect(i * 10, j * 10, 10, 10);
+      }
+    }
+  }
+  //Cierre de camino
+  ctx.closePath();
+
+  // Aplica el recorte
+  ctx.clip("evenodd");
+
+  // Llena el fondo con el color de fondo deseado
+  ctx.fillStyle = "black"; // Cambia esto al color de fondo deseado
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
 //Funcion carga el fichero .led para procesarlo
 function playAnimacion(fileName, fileData) {
-
-  console.log("Inicio funcion playAnimacion()");
+  
+  console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
   z = z + 2 //Sumamos +2 para que la animacion solo se ejecute una vez
   //Lee el contenido del archivo .led proporcionado en formato base64
   aniBytes = new Uint8Array(atob(fileData).split("").map(function (c) { return c.charCodeAt(0); }));
   console.log("numero de aniBytes=", aniBytes);
   framesNum = Math.ceil(aniBytes.length / BLOCK_SIZE); //Redondeo para que framesNum pueda compararse con FramesCounter
-  frameCounter = 0;
+  frameCounter = 0
   bytesOffet = 0;
   stop = false;
+  
   //Lanza función para dibujar la animación después de cargar el archivo .led
-  console.log("LLama a dibujar animacion desde playAnimacion() se envia z = ", z);
-  //Ejecuta función despues de tiempo establecido por delayInicioAnimacion
-  frameControl = setTimeout(dibujarAnimacion(), delayInicioAnimación);
-  detenerAnimacionLED();
+  console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
+  //ctx.globalCompositeOperation = "copy";
+  console.log("dibujarAnimacion() --> dibujarMascara() jsonDataCTS ORLA1 ", jsonDataCTX.mask_orlaFC1);
+  dibujarMascara(jsonDataCTX.mask_coreFC1, jsonDataCTX.mask_coreFC2, jsonDataCTX.mask_orlaFC1, jsonDataCTX.mask_orlaFC2,ctx,canvas);
+  frameControl = setTimeout(function() {
+    dibujarAnimacion();
+}, delayInicioAnimación);
+
 }
 
+/* // Obtén el color del píxel en una ubicación específica (por ejemplo, coordenadas x, y)
+function getColorAtPixel(ctx, x, y) {
+  const pixel = ctx.getImageData(x, y, 1, 1); // Obtiene los datos de color de un píxel
+  const [r, g, b] = pixel.data; // Obtiene los valores de los componentes de color (rojo, verde, azul)
+  return { r, g, b };
+} */
+
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
-function dibujarAnimacion() {
+ function dibujarAnimacion() {
+  
   var x = 0;
   var y = 0;
   var i;
@@ -113,27 +230,32 @@ function dibujarAnimacion() {
   var LEDColor2;
   var LEDColor3;
   var LEDColor4;
+  
   console.log("Inicio dibujarAnimacion()");
-  console.log("frameCounter recibido:", frameCounter);
-  console.log("framesNum establecido:", framesNum);
-  console.log("stop:", stop);
-  console.log("z dibujarAnimacion()", z);
+  console.log("dibujarAnimacion() frameCounter recibido:", frameCounter);
+  console.log("dibujarAnimacion() framesNum establecido:", framesNum);
+  console.log("dibujarAnimacion() stop:", stop);
+  console.log("dibujarAnimacion() z ", z);
 
-  // Verifica si se han ejecutado todos los cuadros
-  if (frameCounter >= framesNum - 1 || stop) {
-    console.log("verifica frameCounter >= framesNum o stop");
-    clearInterval(frameControl);
-    console.log("framaControl se libera a nulo");
-    frameControl = null;
-    detenerAnimacionLED(z);
-  }
+ 
 
-  // leer pausa
+  // Leer pausa
   let framePause = 0;
   framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
   framePause = framePause * PAUSE_MS;
   bytesOffet = bytesOffet + 6;
-  
+
+   // Verifica si se han ejecutado todos los cuadros
+   if (frameCounter >= framesNum - 1 ) {
+    console.log("dibujarAnimacion() verifica frameCounter >= framesNum-1");
+    clearInterval(frameControl);
+    console.log("dibujarAnimacion() frameControl liberado z = ",z-2);
+    frameControl = null;
+    detenerAnimacionLED(z-2);
+    return;
+  }
+ // Llama a la función para dibujar la máscara en el lienzo principal
+ 
   for (n = 0; n < FRAME_SIZE; n++) {
     frameBytes[n] = aniBytes[n + bytesOffet];
   }
@@ -144,7 +266,7 @@ function dibujarAnimacion() {
   y = 0;
   
   for (i = 0; i < frameBytes.length; i++) {
-
+    
     // procesar byte de streamBMP
     let datoLed = frameBytes[i];
     let colorMask1 = 0b11000000;
@@ -152,121 +274,107 @@ function dibujarAnimacion() {
     let colorMask3 = 0b00001100;
     let colorMask4 = 0b00000011;
 
-    // obtener color de cada LED en las posiciones de la mascaras
+    // obtener color de cada LED en las posiciones de la máscara
     LEDColor1 = datoLed & colorMask1;
     LEDColor2 = datoLed & colorMask2;
     LEDColor3 = datoLed & colorMask3;
     LEDColor4 = datoLed & colorMask4;
 
-    // poner el bitmap ded LED según el color
-    switch (LEDColor1) {
-      case 0:
-        ctx.drawImage(bmpApagado, x, y);
-        break;
-      case 0b01000000:
-        ctx.drawImage(bmpVerde, x, y);
-        break;
-      case 0b10000000:
-        ctx.drawImage(bmpRojo, x, y);
-        break;
-        
-      default:
-        ctx.drawImage(bmpApagado, x, y);
+    
+      switch (LEDColor1) {
+        case 0:
+          ctx.drawImage(bmpApagado, x, y);
+          break;
+        case 0b01000000:
+          ctx.drawImage(bmpVerde, x, y);
+          break;
+        case 0b10000000:
+          ctx.drawImage(bmpRojo, x, y);
+          break;
+        default:
+          ctx.drawImage(bmpApagado, x, y);
+      }
+    
+    
+    x += 10;
 
-    }
+      switch (LEDColor2) {
+        case 0:
+          ctx.drawImage(bmpApagado, x, y);
+          break;
+        case 0b00010000:
+          ctx.drawImage(bmpVerde, x, y);
+          break;
+        case 0b00100000:
+          ctx.drawImage(bmpRojo, x, y);
+          break;
+        default:
+          ctx.drawImage(bmpApagado, x, y);
+      }
+      
+
     x += 10;
-    switch (LEDColor2) {
-      case 0:
-        ctx.drawImage(bmpApagado, x, y);
-        break;
-      case 0b00010000:
-        ctx.drawImage(bmpVerde, x, y);
-        break;
-      case 0b00100000:
-        ctx.drawImage(bmpRojo, x, y);
-        break;
-      default:
-        ctx.drawImage(bmpApagado, x, y);
-    }
+
+      switch (LEDColor3) {
+        case 0:
+          ctx.drawImage(bmpApagado, x, y);
+          break;
+        case 0b00000100:
+          ctx.drawImage(bmpVerde, x, y);
+          break;
+        case 0b00001000:
+          ctx.drawImage(bmpRojo, x, y);
+          break;
+        default:
+          ctx.drawImage(bmpApagado, x, y);
+      }
+  
     x += 10;
-    switch (LEDColor3) {
-      case 0:
-        ctx.drawImage(bmpApagado, x, y);
-        break;
-      case 0b00000100:
-        ctx.drawImage(bmpVerde, x, y);
-        break;
-      case 0b00001000:
-        ctx.drawImage(bmpRojo, x, y);
-        break;
-      default:
-        ctx.drawImage(bmpApagado, x, y);
-    }
-    x += 10;
-    switch (LEDColor4) {
-      case 0:
-        ctx.drawImage(bmpApagado, x, y);
-        break;
-      case 0b00000001:
-        ctx.drawImage(bmpVerde, x, y);
-        break;
-      case 0b00000010:
-        ctx.drawImage(bmpRojo, x, y);
-        break;
-      default:
-        ctx.drawImage(bmpApagado, x, y);
-    }
+
+      switch (LEDColor4) {
+        case 0:
+          ctx.drawImage(bmpApagado, x, y);
+          break;
+        case 0b00000001:
+          ctx.drawImage(bmpVerde, x, y);
+          break;
+        case 0b00000010:
+          ctx.drawImage(bmpRojo, x, y);
+          break;
+        default:
+          ctx.drawImage(bmpApagado, x, y);
+      }
+  
+
     x += 10;
     contadorLed++;
-    // control de linea
+ 
+    // control de línea
     if (contadorLed == 14) {
       contadorLed = 0;
       contadorFila++;
       x = 0;
       y += 10;
     }
-  }
-  
-  // =======  CANVAS SUPERPOSICION ANIMACION CUADRADOS EN LAS ESQUINAS =============== //
-   // Cuadrado superior izquierdo
-   
-   /*ctx.fillRect(0, 0, 211, 211); // Dibuja un cuadrado en la esquina superior izquierda
- 
-   // Cuadrado superior derecho
-   ctx.fillRect(canvas.width - 210, 0, 210, 210); // Dibuja un cuadrado en la esquina superior derecha
- 
-   // Cuadrado inferior izquierdo
-   ctx.fillRect(0, canvas.height - 210, 210, 210); // Dibuja un cuadrado en la esquina inferior izquierda
- 
-   // Cuadrado inferior derecho
-   ctx.fillRect(canvas.width - 210, canvas.height - 210, 210, 210); // Dibuja un cuadrado en la esquina inferior derecha
 
-   //Cuadrado superior central
-   ctx.fillRect(211, 0, 140, 70);
-   //Cuadrado inferior central
-   ctx.fillRect((canvas.width - 140) / 2, canvas.height - 70, 140, 70);
-   // Cuadrado lateral central izquierdo
-    ctx.fillRect(0, (canvas.height - 140) / 2, 70, 140);
-  // Cuadrado lateral central derecho
-    ctx.fillRect(canvas.width - 70, (canvas.height - 140) / 2, 70, 140);*/
+    
+  }
 
   frameCounter++;
 
   if (frameCounter < framesNum) {
-    console.log("frameCounter < framesNum")
     frameControl = setTimeout(dibujarAnimacion, framePause);
     stop = false;
-  }
-  else {
+    
+  } else {
     stop = true;
-     // Al final de la animación, llenar el canvas con blanco
-     ctx.fillStyle = "white";
-     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
   }
-}
 
+}
+ 
 //Funcion deteniene animacion fichero Led una vez finalzida
-function detenerAnimacionLED() {
+function detenerAnimacionLED(z) {
 
   document.getElementById("textoInfo").innerHTML = "animacion LED detenida .. continua secuencia"; // Mostrar un mensaje de finalización
   console.log("Inicio funcion detenerAnimacion()");
@@ -283,7 +391,7 @@ function detenerAnimacionLED() {
     z = 0;
     console.log("detenerAnimacionLED() z > actions.length-1 , z =", z," actions.lenght = ",actions.length);
     console.log("detenerAnimacionLED() llamada a showAction()");
-    showAction(action[z], jsonData);
+    showAction(action[z], jsonDataCTX);
   }
 
 }
@@ -358,6 +466,7 @@ function displayAnimation() {
  * Funcion que ejecuta la secuencia una vez configurada. Lee el json que da forma a la cruz,
  * resetea valores y empieza el bucle que mostrara las animaciones
  */
+
 function playSequence() {
   document.getElementById("textoInfo").innerHTML = "Inicio simulación secuencia creada.";
   //Almacena la mascara selecionada
@@ -365,11 +474,12 @@ function playSequence() {
   var file = fileInput.files[0]; // Obtiene el primer archivo seleccionado
   var reader = new FileReader();
   reader.readAsText(file);
-
+  
   reader.onload = function (e) {
     var contents = e.target.result;
-    var jsonData = JSON.parse(contents);
-
+    var jsonDataCTX = JSON.parse(contents);
+    console.log("playSequence() mask:coreFC1.json = ", jsonDataCTX.mask_coreFC1);
+    dibujarCanvasPersonalizado(jsonDataCTX, ctx);
     espera = 0;
     z = 0;
     acabar = 0;
@@ -378,7 +488,7 @@ function playSequence() {
     primera_vez = true;
     done = false;
     console.log("playSequence() llamada a myLoop()");
-    myLoop(jsonData);
+    myLoop(jsonDataCTX);
   };
 }
 
@@ -386,16 +496,18 @@ function playSequence() {
 /**
  * Funcion bucle que ejecuta las acciones de la secuencia de manera ciclica.
  * 
- * @param {JSON} jsonData json con las mascaras de la cruz, que indican su forma y los colore disponibles.
+ * @param {JSON} jsonDataCTX json con las mascaras de la cruz, que indican su forma y los colore disponibles.
  */
-function myLoop(jsonData) {
+function myLoop(jsonDataCTX) {
+  
   setTimeout(function () {
 
     if (fin) {
       // Realizamos siguiente acción
       console.log("Inicio myLoop() fin = ",fin, " z = ",z);
       console.log("myLoop() llamda a showAction()");
-      showAction(actions[z], jsonData);
+      showAction(actions[z], jsonDataCTX);
+
       z++;
       console.log("myLoop() z +1 z = ",z);
       // Si se ha llegado al final de la secuencia, vuelta al principio
@@ -409,7 +521,7 @@ function myLoop(jsonData) {
 
     // Mientras no se pare y no se esté reproduciendo una animación, se continua de forma cíclica
     if (!end) {
-      myLoop(jsonData);
+      myLoop(jsonDataCTX);
     } else {
       isAnimatig = false; // Controlar restablecer la bandera si se detiene la secuencia
     }
@@ -421,11 +533,12 @@ function myLoop(jsonData) {
  * Funcion que obtiene los parametros de las acciones dentro de una secuencia y la ejecuta.
  * 
  * @param {*} action accion de la secuencia a realizar
- * @param {*} jsonData json con las mascaras de la cruz, que indican su forma y los colore disponibles.
+ * @param {*} jsonDataCTX json con las mascaras de la cruz, que indican su forma y los colore disponibles.
  */
-function showAction(action, jsonData) {
+function showAction(action, jsonDataCTX) {
 
   console.log("Inicio showAction() ");
+  
 
   //Obtenemos los parametros de la accion para un uso mas sencillo de la informacion
   var mensaje;                                                  //Mensaje a mostrar
@@ -512,7 +625,7 @@ function showAction(action, jsonData) {
  
 
   //Con los parametros, se procede a mostrar 
-  animation(jsonData, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled, fileAnimation);
+  animation(jsonDataCTX, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled, fileAnimation);
 }
 
 
@@ -673,6 +786,8 @@ function findValue(array, num) {
  * @param {int} action_led numero de filas de led a partir del cual mostrar el mensaje (Este valor viene derivado del valor de FILA)
  */
 function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led, animationled, fileAnimation) {
+
+
   console.log("Inicio animation()");
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
@@ -684,9 +799,21 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
 
   //================= SELECTION ANIMACION FICHERO LED =====================
   if (animationled) {
+
     console.log("animation() -> Recibe animationled = ", animationled, " llamada a playAnimacion() z = ",z);
-    console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData = ",fileAnimation.fileData);
-    playAnimacion(fileAnimation.fileName, fileAnimation.fileData);
+console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData = ",fileAnimation.fileData);
+    console.log("animation() contenido cross_mask", cross_mask);
+     // Verifica si cross_mask existe en jsonData y es un objeto
+  if (cross_mask && typeof cross_mask === 'object') {
+    // Obtiene la cantidad de propiedades en cross_mask
+    var crossMaskProperties = Object.keys(cross_mask);
+    var crossMaskLength = crossMaskProperties.length;
+    console.log("La cantidad de propiedades en cross_mask es: " + crossMaskLength);
+  } else {
+    console.log("cross_mask no es un objeto o no está definido en el JSON.");
+  }
+    
+    playAnimacion(fileAnimation.fileName, fileAnimation.fileData, cross_mask);
    
   }
 
@@ -755,11 +882,14 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
         }
 
       } else if (action_orla == false && (mascara[i][j] == 4 || mascara[i][j] == 5 || mascara[i][j] == 6)) {
+        
         ctx.drawImage(bmpApagado, x, y);
+       
       }
 
       if (mascara[i][j] == 0) {
         ctx.drawImage(bmpBlanco, x, y);
+        
       }
 
       //Dibujamos la cruz
