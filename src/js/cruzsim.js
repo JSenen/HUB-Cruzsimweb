@@ -120,45 +120,10 @@ window.onload = function () {
 };
 
 
-/* function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
-
-  // Limpia el canvas con un fondo negro
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Matrices del JSON que definen la máscara de la cruz
-  const maskMatrix = jsonDataCTX.mask_coreFC1;
-  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2;
-  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1;
-  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;
-
- // Cambiar el color de fondo del canvas a transparente
- ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas para que sea transparente
-
- ctx.fillStyle = "black"; // Establece el color de dibujo en negro
-
-  function drawMatrix(matrix) {
-    for (let i = 0; i < matrix.length; i++) {
-      for (let j = 0; j < matrix[i].length; j++) {
-        if (matrix[i][j] !== 65535) {
-          ctx.fillRect(i * 10, j * 10, 10, 10); // Dibuja en negro donde no es 65535
-
-        }
-      }
-    }
-  }
-  // Dibuja las matrices en el mismo canvas
-  drawMatrix(maskMatrix);
-  drawMatrix(maskMatrixFC2);
-  drawMatrix(maskMatrixOrlaFC1);
-  drawMatrix(maskMatrixOrlaFC2);
-  
-}
- */
 
 function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   // Limpia el canvas con un fondo negro
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   console.log("dibujarCanvasPersonal() jsonDataCTX",jsonDataCTX.mask_coreFC1);
@@ -170,7 +135,7 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;
 
   // Cambiar el color de dibujo en blanco
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "black";
 
   function drawMatrix(matrix) {
     // Inicia el trazado de la forma de recorte
@@ -194,7 +159,7 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
     
 
     // Restablece el contexto sin recorte
-    //ctx.restore();
+    ctx.restore();
   }
 
   // Dibuja las matrices en el canvas
@@ -203,7 +168,7 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   drawMatrix(maskMatrixOrlaFC1);
   drawMatrix(maskMatrixOrlaFC2);
 }
-function dibujarMascara(maskMatrix, ctx) {
+/* function dibujarMascara(maskMatrix, maskMatrix2, ctx) {
   // Define la forma de la máscara
   ctx.beginPath();
   for (let i = 0; i < maskMatrix.length; i++) {
@@ -221,9 +186,46 @@ function dibujarMascara(maskMatrix, ctx) {
   // Llena el fondo con el color de fondo deseado
   ctx.fillStyle = "black"; // Cambia esto al color de fondo deseado
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+}  */
+function dibujarMascara(maskMatrix, maskMatrix2, maskMatrixO1, maskMatrixO2, ctx, canvas) {
+  if (
+    maskMatrix.length !== maskMatrix2.length ||
+    maskMatrix[0].length !== maskMatrix2[0].length ||
+    maskMatrix.length !== maskMatrixO1.length ||
+    maskMatrix[0].length !== maskMatrixO1[0].length ||
+    maskMatrix.length !== maskMatrixO2.length ||
+    maskMatrix[0].length !== maskMatrixO2[0].length
+  ) {
+    console.error("Las matrices deben tener el mismo tamaño.");
+    return;
+  }
+
+  // Define la forma de la suma de las cuatro matrices
+  ctx.beginPath();
+  for (let i = 0; i < maskMatrix.length; i++) {
+    for (let j = 0; j < maskMatrix[i].length; j++) {
+      if (
+        maskMatrix[i][j] !== 65535 ||
+        maskMatrix2[i][j] !== 65535 ||
+        maskMatrixO1[i][j] !== 65535 ||
+        maskMatrixO2[i][j] !== 65535
+      ) {
+        ctx.rect(i * 10, j * 10, 10, 10);
+      }
+    }
+  }
+  ctx.closePath();
+
+  // Aplica el recorte
+  ctx.clip("evenodd");
+
+  // Llena el fondo con el color de fondo deseado
+  ctx.fillStyle = "black"; // Cambia esto al color de fondo deseado
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
+
 //Funcion carga el fichero .led para procesarlo
-function playAnimacion(fileName, fileData, cross_mask) {
+function playAnimacion(fileName, fileData) {
   
   console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
@@ -239,7 +241,8 @@ function playAnimacion(fileName, fileData, cross_mask) {
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
   //ctx.globalCompositeOperation = "copy";
-  dibujarMascara(cross_mask.mask_coreFC1, ctx);
+  console.log("dibujarAnimacion() --> dibujarMascara() jsonDataCTS ORLA1 ", jsonDataCTX.mask_orlaFC1);
+  dibujarMascara(jsonDataCTX.mask_coreFC1, jsonDataCTX.mask_coreFC2, jsonDataCTX.mask_orlaFC1, jsonDataCTX.mask_orlaFC2,ctx,canvas);
   frameControl = setTimeout(function() {
     dibujarAnimacion();
 }, delayInicioAnimación);
@@ -508,7 +511,7 @@ function displayAnimation() {
  * Funcion que ejecuta la secuencia una vez configurada. Lee el json que da forma a la cruz,
  * resetea valores y empieza el bucle que mostrara las animaciones
  */
-function playSequence() {
+/* function playSequence() {
   document.getElementById("textoInfo").innerHTML = "Inicio simulación secuencia creada.";
   //Almacena la mascara selecionada
   var fileInput = document.getElementById('fileSelectorCrossMask');
@@ -521,6 +524,30 @@ function playSequence() {
     var jsonDataCTX = JSON.parse(contents);
     console.log("playSequence() mask:coreFC1.json = ", jsonDataCTX.mask_coreFC1);
     
+    espera = 0;
+    z = 0;
+    acabar = 0;
+    end = false;
+    fin = true;
+    primera_vez = true;
+    done = false;
+    console.log("playSequence() llamada a myLoop()");
+    myLoop(jsonDataCTX);
+  };
+} */
+function playSequence() {
+  document.getElementById("textoInfo").innerHTML = "Inicio simulación secuencia creada.";
+  //Almacena la mascara selecionada
+  var fileInput = document.getElementById('fileSelectorCrossMask');
+  var file = fileInput.files[0]; // Obtiene el primer archivo seleccionado
+  var reader = new FileReader();
+  reader.readAsText(file);
+  
+  reader.onload = function (e) {
+    var contents = e.target.result;
+    var jsonDataCTX = JSON.parse(contents);
+    console.log("playSequence() mask:coreFC1.json = ", jsonDataCTX.mask_coreFC1);
+    dibujarCanvasPersonalizado(jsonDataCTX, ctx);
     espera = 0;
     z = 0;
     acabar = 0;
