@@ -159,7 +159,7 @@ function dibujarMascara(maskMatrix, maskMatrix2, maskMatrixO1, maskMatrixO2, ctx
     console.error("Las matrices deben tener el mismo tamaño.");
     return;
   }
-
+  
   // Define la forma de la suma de las cuatro matrices
   // Puntos recibidos = 65535, se eliminan para que no se vea el fondo negro de la animación
   // Inicio de camino
