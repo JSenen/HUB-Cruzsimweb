@@ -192,7 +192,7 @@ function playAnimacion(fileName, fileData) {
   
   console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
-  z = z + 2 //Sumamos +2 para que la animacion solo se ejecute una vez
+  
   //Lee el contenido del archivo .led proporcionado en formato base64
   aniBytes = new Uint8Array(atob(fileData).split("").map(function (c) { return c.charCodeAt(0); }));
   console.log("numero de aniBytes=", aniBytes);
@@ -203,8 +203,8 @@ function playAnimacion(fileName, fileData) {
   
   //Lanza función para dibujar la animación después de cargar el archivo .led
   console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
-  //ctx.globalCompositeOperation = "copy";
-  console.log("dibujarAnimacion() --> dibujarMascara() jsonDataCTS ORLA1 ", jsonDataCTX.mask_orlaFC1);
+ 
+  //console.log("dibujarAnimacion() --> dibujarMascara() jsonDataCTS ORLA1 ", jsonDataCTX.mask_orlaFC1);
   dibujarMascara(jsonDataCTX.mask_coreFC1, jsonDataCTX.mask_coreFC2, jsonDataCTX.mask_orlaFC1, jsonDataCTX.mask_orlaFC2,ctx,canvas);
   frameControl = setTimeout(function() {
     dibujarAnimacion();
@@ -245,15 +245,7 @@ function getColorAtPixel(ctx, x, y) {
   framePause = framePause * PAUSE_MS;
   bytesOffet = bytesOffet + 6;
 
-   // Verifica si se han ejecutado todos los cuadros
-   if (frameCounter >= framesNum - 1 ) {
-    console.log("dibujarAnimacion() verifica frameCounter >= framesNum-1");
-    clearInterval(frameControl);
-    console.log("dibujarAnimacion() frameControl liberado z = ",z-2);
-    frameControl = null;
-    detenerAnimacionLED(z-2);
-    return;
-  }
+   
  // Llama a la función para dibujar la máscara en el lienzo principal
  
   for (n = 0; n < FRAME_SIZE; n++) {
@@ -359,6 +351,17 @@ function getColorAtPixel(ctx, x, y) {
 
     
   }
+  // Verifica si se han ejecutado todos los cuadros
+  if (frameCounter >= framesNum - 1 ) {
+    console.log("dibujarAnimacion() verifica frameCounter >= framesNum-1");
+    clearInterval(frameControl);
+    console.log("dibujarAnimacion() frameControl liberado z = ",z);
+    frameControl = null;
+      z = z + 1;
+      fin = true;
+    myLoop(jsonDataCTX);
+    return;
+  }
 
   frameCounter++;
 
@@ -370,7 +373,7 @@ function getColorAtPixel(ctx, x, y) {
     stop = true;
     
   }
-
+  
 }
  
 //Funcion deteniene animacion fichero Led una vez finalzida
@@ -506,17 +509,20 @@ function myLoop(jsonDataCTX) {
       // Realizamos siguiente acción
       console.log("Inicio myLoop() fin = ",fin, " z = ",z);
       console.log("myLoop() llamda a showAction()");
-      showAction(actions[z], jsonDataCTX);
-
-      z++;
+      
+      if (z <= (actions.length) - 1){
+        
+        showAction(actions[z], jsonDataCTX);
+        z++;
+        
       console.log("myLoop() z +1 z = ",z);
-      // Si se ha llegado al final de la secuencia, vuelta al principio
-      if (z > (actions.length) - 1) {
+      } else if (z > (actions.length) - 1) { // Si se ha llegado al final de la secuencia, vuelta al principio
         console.log("myLoop() z > actions.lenght -1  z = ",z," actions.lenght = ",actions.lenght);
+        fin = true;
         z = 0;
         console.log("myLoop() z = 0");
       }
-
+      
     }
 
     // Mientras no se pare y no se esté reproduciendo una animación, se continua de forma cíclica
@@ -604,6 +610,7 @@ function showAction(action, jsonDataCTX) {
     //Caso de cargar animacion, carga el fichero .led seleccionado
     case "animation":
       console.log("showAnimation() ve que es una animacion");
+      //console.log("action.animation ", action.animation.fileName);
       // Verificar si se incluyó la animación en el objeto JSON
       if (action.animation) {
         // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
@@ -615,6 +622,7 @@ function showAction(action, jsonDataCTX) {
         }; 
       } else {
         // En caso de que no se carge animación, sestablece el mensaje
+        console.log("NO LED ---->",action.animation.fileName);
         mensaje = "No LED"; //TODO eliminar tras pruebas
       }
       break;

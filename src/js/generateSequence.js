@@ -1,6 +1,7 @@
 let count=0;
 let id=0;
 let selectedFile = null;
+let currentRow = null; //Ratrea la linea actual
 /** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
 var formJSON; 
@@ -10,6 +11,7 @@ function addAction() {
     newRow = document.createElement('tr');
     newRow.setAttribute('id', `row-${count}`);
     newRow.setAttribute('data-id', count); // Agrega un atributo data-id con el valor de count
+    newRow.setAttribute('data-count', count);
     newRow.innerHTML = `
     <td>
       <label id="count" style="display: none;">${count}</label>
@@ -24,7 +26,7 @@ function addAction() {
             <option value="humidity">Humedad</option>
             <option value="date">Fecha</option>
             <option value="text">Texto</option>
-            <option id="animation_selected" value="animation">Animación</option>
+            <option value="animation">Animación</option>
         </select>
     </td>
     <td>
@@ -35,6 +37,9 @@ function addAction() {
           <div class="guia">
             <label for="message-${count}">Texto</label>
             <input type="text" id="message-${count}" placeholder="Opcional si no es tipo Texto">
+          </div>
+          <div class="se_deja">
+          <input type="file" id="fileAnimationSelector-${count}" accept=".led">
           </div>
 
           <div class="se_deja">
@@ -239,26 +244,14 @@ function addAction() {
         </div>
       </div>
     </td>
-    <td>
-    <input type="file" id="fileSelector-${count}" accept=".led" style="display: none;">
-    </td>
+   
     <td><button type="button" onclick="removeAction('row-${count}')" class="delete-btn">Delete</button></td>
   `;
 
   table = document.getElementById('table');
   table.querySelector('tbody').appendChild(newRow);
 
-  //Creamos un listener para que boton de buscar fichero animación sólo sea visible cuando se selecciona animación
-  var animationSelected = document.getElementById(`animation-selected-${count}`);
-  var inputFileAnimation = document.getElementById(`fileSelector-${count}`);
-  
-  animationSelected.addEventListener('change', function () {
-    if (animationSelected.value === 'animation') {
-      inputFileAnimation.style.display = "block"; // Muestra el input file cuando se selecciona "Animación"
-    } else {
-      inputFileAnimation.style.display = "none"; // Oculta el input file en caso contrario
-    }
-  });
+ 
 
   count++;
 }
@@ -272,6 +265,11 @@ function removeAction(row_id) {
 function toggleDropdown(button) {
   const dropdown = button.nextElementSibling;
   dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+
+  const animationSelected = button.parentElement.parentElement.querySelector('select[id^="animation-selected"]');
+  const count = animationSelected.id.split('-').pop();
+  
+
 }
 
   
@@ -294,18 +292,18 @@ function handleFormSubmit(event) {
     tableRows.forEach(row => {
         rowData = {};
         cells = row.querySelectorAll('td');
-
+        id = row.getAttribute('data-id');
         cells.forEach((cell, index) => {
 
           if (index === 0) {
             // Obtén el valor id desde el atributo data-id
-            id = row.getAttribute('data-id');
+            //id = row.getAttribute('data-id');
             rowData['_id'] = cell.querySelector('input').value;
           } else if (index === 1) {
                 selectElement = cell.querySelector('select');
                 selectedOption = selectElement.options[selectElement.selectedIndex];
                 rowData['type'] = selectedOption.value;
-            } else if (index === 2) {
+          } else if (index === 2) {
               
               paramData = {}; 
 
@@ -367,30 +365,20 @@ function handleFormSubmit(event) {
               selectedOptionLed = selectElementLed.options[selectElementLed.selectedIndex];
               paramData['led'] = parseInt(selectedOptionLed.value);
 
+              selectElementFile = cell.querySelector('#fileAnimationSelector-' + id);
+              if (selectElementFile.files.length > 0) {
+                const selectedFile = selectElementFile.files[0];
+                handleFileUpload(selectedFile, rowData, id);
+              } else {
+                rowData['animation'] = null;
+               // actions.push(rowData); // Agregar rowData al arreglo actions
+              }
+
+
               rowData['parameters'] = paramData;//parameters;
 
-            }
-
-            // Columna de la subida del fichero animacion led
-            if (index === 3) {
-              const inputElement = cell.querySelector('input[type="file"]');
-                if (inputElement.files.length > 0) {
-                  const selectedFile = inputElement.files[0];
-                  const reader = new FileReader();
-                  reader.readAsDataURL(selectedFile);
-
-                  reader.onload = function(e) {
-                    const fileData = e.target.result.split(',')[1]; // Obtener los datos en base64
-                    rowData['animation'] = {
-                      fileName: selectedFile.name,
-                      fileData: fileData // Almacenar los datos del archivo en base64
-                    };
-                  };
-                } else {
-                  rowData['animation'] = null;
-                 // actions.push(rowData); // Agregar rowData al arreglo actions
-                }
-            }
+          
+          }
           });
         
           actions.push(rowData);
@@ -398,6 +386,8 @@ function handleFormSubmit(event) {
     });
     
     formJSON.actions = actions;
+
+    console.log("generateSequence() actions-->",actions)
   
     from_time = formJSON["from-time"];
     to_time = formJSON["to-time"];
@@ -418,4 +408,18 @@ function handleFormSubmit(event) {
     console.log("handleFormSubmit() llamada a playSequence");
     playSequence();
   }
+
+  // Función para manejar la carga del archivo
+function handleFileUpload(file, rowData, id) {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+
+  reader.onload = function(e) {
+    const fileData = e.target.result.split(',')[1]; // Obtener los datos en base64
+    rowData['animation'] = {
+      fileName: file.name,
+      fileData: fileData // Almacenar los datos del archivo en base64
+    };
+  };
+}
   
