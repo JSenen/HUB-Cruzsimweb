@@ -56,7 +56,7 @@ var maskCtx;
 
 
 
-// Código al cargar la página
+// // ======  CARGA INCIAL DE LA PAGINA PRINCIPAL  ================ //
 window.onload = function () {
   document.getElementById("textoInfo").innerHTML = "Seleccione mascará y secuencia";
 
@@ -105,7 +105,7 @@ window.onload = function () {
   seccion2 = document.getElementById("seccion2");
 };
 
-
+// ======  FUNCION DIBUJA CANVAS PERSONALIZADO A LA MASCARA ================ //
 function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   // Limpia el canvas con un fondo blanco
   ctx.fillStyle = "white";
@@ -190,35 +190,20 @@ function dibujarMascara(maskMatrix, maskMatrix2, maskMatrixO1, maskMatrixO2, ctx
 //Funcion carga el fichero .led para procesarlo
 function playAnimacion(fileName, fileData) {
   
-  console.log("Inicio funcion playAnimacion() ");
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia LED";
-  
   //Lee el contenido del archivo .led proporcionado en formato base64
   aniBytes = new Uint8Array(atob(fileData).split("").map(function (c) { return c.charCodeAt(0); }));
-  console.log("numero de aniBytes=", aniBytes);
   framesNum = Math.ceil(aniBytes.length / BLOCK_SIZE); //Redondeo para que framesNum pueda compararse con FramesCounter
   frameCounter = 0
   bytesOffet = 0;
   stop = false;
-  
-  //Lanza función para dibujar la animación después de cargar el archivo .led
-  console.log("playAnimacion() LLama a dibujarAnimacion() se envia z = ", z);
- 
-  //console.log("dibujarAnimacion() --> dibujarMascara() jsonDataCTS ORLA1 ", jsonDataCTX.mask_orlaFC1);
+
   dibujarMascara(jsonDataCTX.mask_coreFC1, jsonDataCTX.mask_coreFC2, jsonDataCTX.mask_orlaFC1, jsonDataCTX.mask_orlaFC2,ctx,canvas);
   frameControl = setTimeout(function() {
     dibujarAnimacion();
 }, delayInicioAnimación);
 
 }
-
-/* // Obtén el color del píxel en una ubicación específica (por ejemplo, coordenadas x, y)
-function getColorAtPixel(ctx, x, y) {
-  const pixel = ctx.getImageData(x, y, 1, 1); // Obtiene los datos de color de un píxel
-  const [r, g, b] = pixel.data; // Obtiene los valores de los componentes de color (rojo, verde, azul)
-  return { r, g, b };
-} */
-
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
  function dibujarAnimacion() {
   
@@ -237,14 +222,11 @@ function getColorAtPixel(ctx, x, y) {
   console.log("dibujarAnimacion() stop:", stop);
   console.log("dibujarAnimacion() z ", z);
 
- 
-
   // Leer pausa
   let framePause = 0;
   framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
   framePause = framePause * PAUSE_MS;
   bytesOffet = bytesOffet + 6;
-
    
  // Llama a la función para dibujar la máscara en el lienzo principal
  
@@ -348,14 +330,12 @@ function getColorAtPixel(ctx, x, y) {
       x = 0;
       y += 10;
     }
-
     
   }
-  // Verifica si se han ejecutado todos los cuadros
+  // Verifica si se han ejecutado todos los cuadros de la animacion led
   if (frameCounter >= framesNum - 1 ) {
-    console.log("dibujarAnimacion() verifica frameCounter >= framesNum-1");
+  
     clearInterval(frameControl);
-    console.log("dibujarAnimacion() frameControl liberado z = ",z);
     frameControl = null;
       z = z + 1;
       fin = true;
@@ -370,13 +350,12 @@ function getColorAtPixel(ctx, x, y) {
     stop = false;
     
   } else {
-    stop = true;
-    
+    stop = true;  
   }
   
 }
  
-//Funcion deteniene animacion fichero Led una vez finalzida
+/// ======  FUNCION DETIENE ANIMACION DEL FICHERO LED AL FINALIZAR ================ //
 function detenerAnimacionLED(z) {
 
   document.getElementById("textoInfo").innerHTML = "animacion LED detenida .. continua secuencia"; // Mostrar un mensaje de finalización
@@ -385,15 +364,11 @@ function detenerAnimacionLED(z) {
   if (z <= (actions.length) - 1) {
 
     z = z + 1;
-    console.log("detenerAnimacionLED() z <= actions.length-1 , z =", z," actions.lenght = ",actions.length);
     fin = true;
-    console.log("detenerAnimacionLED() llamada a playSequence()");
     playSequence();
   } else if (z > (actions.length)-1){
     fin = true;
     z = 0;
-    console.log("detenerAnimacionLED() z > actions.length-1 , z =", z," actions.lenght = ",actions.length);
-    console.log("detenerAnimacionLED() llamada a showAction()");
     showAction(action[z], jsonDataCTX);
   }
 
@@ -408,8 +383,7 @@ function ficheros() {
   select.innerHTML = options.join('');
 }
 
-
-
+// ======  FUNCION DESCARGAR SECUENCIA ================ //
 function downloadSequence() {
   // Convert JSON to a data URI
   const dataURI = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(formJSON, null, 2));
@@ -446,7 +420,7 @@ function stopAnimacion() {
 
 //Muestra las opciones de crear secuencia
 function displaySequence() {
-  console.log("displaySequence() llamda a finSimulacio() y stopSimulacion()");
+
   finSimulacion();
   stopAnimacion();
   seccion1.style.display = "none";
@@ -481,7 +455,7 @@ function playSequence() {
   reader.onload = function (e) {
     var contents = e.target.result;
     var jsonDataCTX = JSON.parse(contents);
-    console.log("playSequence() mask:coreFC1.json = ", jsonDataCTX.mask_coreFC1);
+    //Llamada a dibujar el canvas personalizado
     dibujarCanvasPersonalizado(jsonDataCTX, ctx);
     espera = 0;
     z = 0;
@@ -490,7 +464,7 @@ function playSequence() {
     fin = true;
     primera_vez = true;
     done = false;
-    console.log("playSequence() llamada a myLoop()");
+    //Llamada a la repetecion de la secuencia
     myLoop(jsonDataCTX);
   };
 }
@@ -507,20 +481,17 @@ function myLoop(jsonDataCTX) {
 
     if (fin) {
       // Realizamos siguiente acción
-      console.log("Inicio myLoop() fin = ",fin, " z = ",z);
-      console.log("myLoop() llamda a showAction()");
       
       if (z <= (actions.length) - 1){
         
         showAction(actions[z], jsonDataCTX);
         z++;
         
-      console.log("myLoop() z +1 z = ",z);
       } else if (z > (actions.length) - 1) { // Si se ha llegado al final de la secuencia, vuelta al principio
-        console.log("myLoop() z > actions.lenght -1  z = ",z," actions.lenght = ",actions.lenght);
+       
         fin = true;
         z = 0;
-        console.log("myLoop() z = 0");
+       
       }
       
     }
@@ -610,11 +581,9 @@ function showAction(action, jsonDataCTX) {
     //Caso de cargar animacion, carga el fichero .led seleccionado
     case "animation":
       console.log("showAnimation() ve que es una animacion");
-      //console.log("action.animation ", action.animation.fileName);
       // Verificar si se incluyó la animación en el objeto JSON
       if (action.animation) {
-        // selectedFile contiene tanto el nombre del archivo como los datos en formato base64
-        console.log("Guarda fichero animacion para procesar despues")
+    
         animationled = true;
         fileAnimation = {
           fileName: action.animation.fileName,
@@ -622,8 +591,7 @@ function showAction(action, jsonDataCTX) {
         }; 
       } else {
         // En caso de que no se carge animación, sestablece el mensaje
-        console.log("NO LED ---->",action.animation.fileName);
-        mensaje = "No LED"; //TODO eliminar tras pruebas
+        mensaje = "No file selected"; 
       }
       break;
 
@@ -632,12 +600,12 @@ function showAction(action, jsonDataCTX) {
   }
  
 
-  //Con los parametros, se procede a mostrar 
+  //Con los parametros, se procede a llamar a la función animation
   animation(jsonDataCTX, mensaje, top_draw, bottom_draw, effect, delete_single_row, delete_all, text_in_out, text_only_in, font_size, speed, pausa, orla, tipography, color, led, animationled, fileAnimation);
 }
 
 
-//############################################################################## MEDIDAS DE LA CRUZ ##############################################################################
+//################################## MEDIDAS DE LA CRUZ ##################################################################
 //Las medidas de la cruz son variables y modifican el tamaño de la cruz. Eso si, que se muestre o no depende de la mascara.
 const topPanel_X = 14;
 const topPanel_Y = 14;
@@ -795,8 +763,6 @@ function findValue(array, num) {
  */
 function animation(cross_mask, action_message, action_top_draw, action_bottom_draw, action_effect, action_delete_single_row, action_delete_all, action_text_in_out, action_text_only_in, action_font_size, action_speed, action_pausa, action_orla, action_tipography, action_color, action_led, animationled, fileAnimation) {
 
-
-  console.log("Inicio animation()");
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia animacion creada.";
@@ -808,19 +774,15 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   //================= SELECTION ANIMACION FICHERO LED =====================
   if (animationled) {
 
-    console.log("animation() -> Recibe animationled = ", animationled, " llamada a playAnimacion() z = ",z);
-console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData = ",fileAnimation.fileData);
-    console.log("animation() contenido cross_mask", cross_mask);
      // Verifica si cross_mask existe en jsonData y es un objeto
-  if (cross_mask && typeof cross_mask === 'object') {
-    // Obtiene la cantidad de propiedades en cross_mask
-    var crossMaskProperties = Object.keys(cross_mask);
-    var crossMaskLength = crossMaskProperties.length;
-    console.log("La cantidad de propiedades en cross_mask es: " + crossMaskLength);
-  } else {
-    console.log("cross_mask no es un objeto o no está definido en el JSON.");
-  }
-    
+      if (cross_mask && typeof cross_mask === 'object') {
+        // Obtiene la cantidad de propiedades en cross_mask
+        var crossMaskProperties = Object.keys(cross_mask);
+        var crossMaskLength = crossMaskProperties.length;
+      } else {
+        console.log("cross_mask no es un objeto o no está definido en el JSON.");
+      }
+    //Llamada al inicio de la animacion
     playAnimacion(fileAnimation.fileName, fileAnimation.fileData, cross_mask);
    
   }
@@ -839,8 +801,6 @@ console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData =
   }
 
   bucle = font[action_message[0]].length - 1; //Altura del texto
-
-
 
 
   // ================== SELECCION DE OFFSET ==================
@@ -973,10 +933,6 @@ console.log("animation() envia fileName = ",fileAnimation.fileName, " fileData =
   }
 }
 
-
-//==================================================================================================================================================================================================================================================================
-
-
 /**
  * Funcion que genera los dibujos en los paneles superior e inferior de la cruz
  * 
@@ -1034,10 +990,6 @@ function dibujarDib(posx, posy, bufDib, color, position) {
   }
 
 }
-
-
-//==================================================================================================================================================================================================================================================================
-
 
 /**
  * Funcion que hace aparecer por el borde superior las letras en el caso DOWN. Primero de los 
@@ -1687,10 +1639,6 @@ function ponerTexto(texto, dir, speed, font, pause, all_movement, stop_middle, o
     scrollControl = setInterval(ponerTexto, tiempoScroll - (speed * 2), texto, dir, speed, font, pause, all_movement, stop_middle, offset, color);
   }
 }
-
-
-//==================================================================================================================================================================================================================================================================
-
 
 /**
  * Funcion que posiciona el texto a partir de un punto fijo

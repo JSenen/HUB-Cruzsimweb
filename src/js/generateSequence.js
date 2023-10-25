@@ -5,7 +5,7 @@ let currentRow = null; //Ratrea la linea actual
 /** @param {*} formJSON Json guarda los parametros de la secuencia creada */
 
 var formJSON; 
-
+// ======  FUNCION AÑADE LOS DISTINTOS TIPOS EN LA SECUENCIA  ================ //
 function addAction() {
   console.log("addAction()");
     newRow = document.createElement('tr');
@@ -252,17 +252,16 @@ function addAction() {
   table = document.getElementById('table');
   table.querySelector('tbody').appendChild(newRow);
 
- 
-
   count++;
 }
 
+// ======  FUNCION ELIMINA LINEA DE ACCIONES SELECCIONADAS ================ //
 function removeAction(row_id) {
   console.log("removeAction()");
     var row = document.getElementById(row_id);
     row.parentNode.removeChild(row);
 }
-
+// ======  FUNCION MENU DESPLEGABLE ======================================= //
 function toggleDropdown(button) {
   const dropdown = button.nextElementSibling;
   dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
@@ -270,20 +269,18 @@ function toggleDropdown(button) {
   const animationSelected = button.parentElement.parentElement.querySelector('select[id^="animation-selected"]');
   const count = animationSelected.id.split('-').pop();
   
-
 }
 
-  
 /** Compone la secuencia */
 function handleFormSubmit(event) {
-  console.log("Inicio handleFormSubmit() --> compone secuencia");
+  
     event.preventDefault();
   
     data = new FormData(event.target);
   
     formJSON = Object.fromEntries(data.entries());
 
-    // get the state of the checkbox
+    // Se comprueba estado del checkbox
     defaultCheckbox = document.querySelector('input[name="default"]');
     formJSON.default = defaultCheckbox.checked;
     // Busca en las filas 
@@ -295,15 +292,16 @@ function handleFormSubmit(event) {
         cells = row.querySelectorAll('td');
         id = row.getAttribute('data-id');
         cells.forEach((cell, index) => {
-
+          // index 0 . Columna de los ID
           if (index === 0) {
             // Obtén el valor id desde el atributo data-id
-            //id = row.getAttribute('data-id');
             rowData['_id'] = cell.querySelector('input').value;
+          // index 1 columna del tipo de acción  
           } else if (index === 1) {
                 selectElement = cell.querySelector('select');
                 selectedOption = selectElement.options[selectElement.selectedIndex];
                 rowData['type'] = selectedOption.value;
+          // index 2 columna opciones 
           } else if (index === 2) {
               
               paramData = {}; 
@@ -372,23 +370,18 @@ function handleFormSubmit(event) {
                 handleFileUpload(selectedFile, rowData, id);
               } else {
                 rowData['animation'] = null;
-               // actions.push(rowData); // Agregar rowData al arreglo actions
               }
-
 
               rowData['parameters'] = paramData;//parameters;
 
-          
           }
           });
         
           actions.push(rowData);
-          console.log("handleFormSubmit() actions[]  ----->",actions );
+          
     });
     
     formJSON.actions = actions;
-
-    console.log("generateSequence() actions-->",actions)
   
     from_time = formJSON["from-time"];
     to_time = formJSON["to-time"];
@@ -405,22 +398,21 @@ function handleFormSubmit(event) {
     
     seccion1.style.display = "block";
     seccion2.style.display = "none";
-  
-    console.log("handleFormSubmit() llamada a playSequence");
+
     playSequence();
   }
 
   // Función para manejar la carga del archivo
-function handleFileUpload(file, rowData, id) {
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
+  function handleFileUpload(file, rowData, id) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
 
-  reader.onload = function(e) {
-    const fileData = e.target.result.split(',')[1]; // Obtener los datos en base64
-    rowData['animation'] = {
-      fileName: file.name,
-      fileData: fileData // Almacenar los datos del archivo en base64
-    };
-  };
-}
+      reader.onload = function(e) {
+        const fileData = e.target.result.split(',')[1]; // Obtener los datos en base64
+        rowData['animation'] = {
+            fileName: file.name,
+            fileData: fileData // Almacenar los datos del archivo en base64
+        };
+      };
+  }
   
