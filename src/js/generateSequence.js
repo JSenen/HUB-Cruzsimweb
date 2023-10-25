@@ -33,12 +33,13 @@ function addAction() {
       <button type="button" onclick="toggleDropdown(this)">Mostrar opciones</button>
       <div class="dropdown" style="position: absolute; display: none;">
         <div class="dropdown-content">
-        
+
           <div class="guia">
             <label for="message-${count}">Texto</label>
             <input type="text" id="message-${count}" placeholder="Opcional si no es tipo Texto">
           </div>
           <div class="se_deja">
+          <label>Fichero Animacion</label>
           <input type="file" id="fileAnimationSelector-${count}" accept=".led">
           </div>
 
