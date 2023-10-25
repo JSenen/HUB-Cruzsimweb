@@ -161,7 +161,7 @@ function dibujarMascara(maskMatrix, maskMatrix2, maskMatrixO1, maskMatrixO2, ctx
   }
   
   // Define la forma de la suma de las cuatro matrices
-  // Puntos recibidos = 65535, se eliminan para que no se vea el fondo negro de la animación
+  // Puntos recibidos != 65535, son los que marcan donde se vera la animacion
   // Inicio de camino
   ctx.beginPath();
   for (let i = 0; i < maskMatrix.length; i++) {
