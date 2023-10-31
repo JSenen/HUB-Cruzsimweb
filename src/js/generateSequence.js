@@ -146,14 +146,7 @@ function addAction() {
             </select>
           </div>
           
-          <div class="se_deja">
-            <label for="row-${count}">Fila</label>
-            <select id="row-${count}">
-              <option value="0">Fila 1</option>
-              <option value="1">Fila 2</option>
-              <option value="2">Fila 3</option>
-            </select>
-          </div>
+         
 
           <div class="se_deja">
             <label for="speed-${count}">Velocidad</label>
@@ -200,21 +193,12 @@ function addAction() {
           </div>
 
           <div class="se_deja">
-            <label for="led-${count}">Led</label>
+            <label for="led-${count}">Fila</label>
             <select id="led-${count}">
-              <option value="0" selected="selected">1</option>
-              <option value="1">2</option>
-              <option value="2">3</option>
-              <option value="3">4</option>
-              <option value="4">5</option>
-              <option value="5">6</option>
-              <option value="6">7</option>
-              <option value="7">8</option>
-              <option value="8">9</option>
-              <option value="9">10</option>
-              <option value="10">11</option>
-              <option value="11">12</option>
-              <option value="12">13</option>
+              <option value="3" selected="selected">3</option>
+              <option value="0">1</option>
+              <option value="6">2</option>
+        
             </select>
           </div>
 
@@ -340,10 +324,6 @@ function handleFormSubmit(event) {
               selectElementFontSize = cell.querySelector('#font_size-' + id);
               selectedOptionFontSize = selectElementFontSize.options[selectElementFontSize.selectedIndex];
               paramData['font_size'] = parseInt(selectedOptionFontSize.value);
-
-              selectElementRow = cell.querySelector('#row-' + id);
-              selectedOptionRow = selectElementRow.options[selectElementRow.selectedIndex];
-              paramData['row'] = parseInt(selectedOptionRow.value);
 
               selectElementSpeed = cell.querySelector('#speed-' + id);
               selectedOptionSpeed = selectElementSpeed.options[selectElementSpeed.selectedIndex];
