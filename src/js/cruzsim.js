@@ -49,6 +49,12 @@ var animationled;
 var fileAnimation;
 var jsonDataCTX;
 
+const colorMapping = {
+  0: bmpApagado,
+  0b01000000: bmpVerde,
+  0b10000000: bmpRojo,
+  // Otros valores y colores aquí...
+};
 
 // Variables globales para la máscara
 var maskCanvas;
@@ -81,20 +87,20 @@ window.onload = function () {
 
   // Adjunta un controlador de eventos al campo de entrada de archivo mascara
   const fileInput = document.getElementById('fileSelectorCrossMask');
-  fileInput.addEventListener('change', function (event) {
+fileInput.addEventListener('change', function (event) {
     const file = event.target.files[0]; // Obtiene el primer archivo seleccionado
-    if (file) {
-      // Un archivo ha sido seleccionado, ahora se carga y procesa el JSON asociado.
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const contents = e.target.result;
-        jsonDataCTX = JSON.parse(contents);
+  if (file) {
+// Un archivo ha sido seleccionado, ahora se carga y procesa el JSON asociado.
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const contents = e.target.result;
+      jsonDataCTX = JSON.parse(contents);
 
-        // Llama a la función para dibujar el canvas personalizado
+      // Llama a la función para dibujar el canvas personalizado
         dibujarCanvasPersonalizado(jsonDataCTX, ctx);
-      };
-      reader.readAsText(file);
-    }
+    };
+    reader.readAsText(file);
+  }
 
   });
 
@@ -205,8 +211,8 @@ function playAnimacion(fileName, fileData) {
 
 }
 // ======  FUNCION DIBUJA ANIMACION DEL FICHERO LED ================ //
- function dibujarAnimacion() {
-  
+function dibujarAnimacion() {
+
   var x = 0;
   var y = 0;
   var i;
@@ -227,20 +233,20 @@ function playAnimacion(fileName, fileData) {
   framePause = (aniBytes[bytesOffet + 3] << 8) + aniBytes[bytesOffet + 4];
   framePause = framePause * PAUSE_MS;
   bytesOffet = bytesOffet + 6;
-   
- // Llama a la función para dibujar la máscara en el lienzo principal
- 
+
+  // Llama a la función para dibujar la máscara en el lienzo principal
+
   for (n = 0; n < FRAME_SIZE; n++) {
     frameBytes[n] = aniBytes[n + bytesOffet];
   }
   bytesOffet += FRAME_SIZE;
-  contadorLed = 0;
+contadorLed = 0;
   contadorFila = 0;
   x = 0;
   y = 0;
-  
+
   for (i = 0; i < frameBytes.length; i++) {
-    
+
     // procesar byte de streamBMP
     let datoLed = frameBytes[i];
     let colorMask1 = 0b11000000;
@@ -270,8 +276,8 @@ function playAnimacion(fileName, fileData) {
       }
     
     
-    x += 10;
-
+      x += 10;
+    
       switch (LEDColor2) {
         case 0:
           ctx.drawImage(bmpApagado, x, y);
@@ -322,7 +328,7 @@ function playAnimacion(fileName, fileData) {
 
     x += 10;
     contadorLed++;
- 
+
     // control de línea
     if (contadorLed == 14) {
       contadorLed = 0;
@@ -330,15 +336,15 @@ function playAnimacion(fileName, fileData) {
       x = 0;
       y += 10;
     }
-    
+
   }
-  // Verifica si se han ejecutado todos los cuadros de la animacion led
+// Verifica si se han ejecutado todos los cuadros de la animacion led
   if (frameCounter >= framesNum - 1 ) {
-  
-    clearInterval(frameControl);
+
+  clearInterval(frameControl);
     frameControl = null;
-      z = z + 1;
-      fin = true;
+    z = z + 1;
+    fin = true;
     myLoop(jsonDataCTX);
     return;
   }
@@ -347,12 +353,12 @@ function playAnimacion(fileName, fileData) {
 
   if (frameCounter < framesNum) {
     frameControl = setTimeout(dibujarAnimacion, framePause);
-    stop = false;
+stop = false;
     
   } else {
-    stop = true;  
+    stop = true;
   }
-  
+
 }
  
 /// ======  FUNCION DETIENE ANIMACION DEL FICHERO LED AL FINALIZAR ================ //
@@ -383,6 +389,7 @@ function ficheros() {
   select.innerHTML = options.join('');
 }
 
+
 // ======  FUNCION DESCARGAR SECUENCIA ================ //
 function downloadSequence() {
   // Convert JSON to a data URI
@@ -394,7 +401,7 @@ function downloadSequence() {
   link.download = 'sequence.json';
 
   // Append the anchor element to the body and trigger the download
-  document.body.appendChild(link);
+document.body.appendChild(link);
   link.click();
 
   // Clean up the temporary anchor element

@@ -196,8 +196,8 @@ function addAction() {
             <label for="led-${count}">Fila</label>
             <select id="led-${count}">
               <option value="3" selected="selected">3</option>
-              <option value="0">1</option>
-              <option value="6">2</option>
+              <option value="1">1</option>
+              <option value="7">2</option>
         
             </select>
           </div>
