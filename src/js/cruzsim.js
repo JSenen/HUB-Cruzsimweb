@@ -117,11 +117,11 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Matrices del JSON que definen la máscara de la cruz
-  const maskMatrix = jsonDataCTX.mask_coreFC1;          //Parte central
-  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2;       // Esquinas
-  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1;   // Orla 1
-  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;   // Orla 2
+  // Matrices del JSON que definen la máscara de la cruz o paneles
+  const maskMatrix = jsonDataCTX.mask_coreFC1 ?? jsonDataCTX.mask_cano1C1;        //Parte central
+  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2 ?? jsonDataCTX.mask_cano2C1;       // Esquinas
+  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1 ?? jsonDataCTX.mask_cano3C1;   // Orla 1
+  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2 ?? jsonDataCTX.mask_cano4C1;   // Orla 2
 
   // Cambiar el color de dibujo en blanco
   ctx.fillStyle = "white";
@@ -662,66 +662,72 @@ function checkArrays(maskContent) {
   const ROJO_ORLA = 5;
   const BICOLOR_ORLA = 6;
 
+//Integracion de mascaras y paneles, necesario variables comunes
+const MASK_CORE_1 = maskContent.mask_coreFC1 ?? maskContent.mask_cano1C1; 
+const MASK_CORE_2 = maskContent.mask_coreFC2 ?? maskContent.mask_cano2C1;
+const MASK_CORE_3 = maskContent.mask_orlaFC1 ?? maskContent.mask_cano3C1;
+const MASK_CORE_4 = maskContent.mask_orlaFC2 ?? maskContent.mask_cano4C1;
 
-  // Primera mascara de la cruz (Verde)
-  if (maskContent.mask_coreFC1.length != 0) {
-    for (var i = 0; i < maskContent.mask_coreFC1.length; i++) {
-      for (var j = 0; j < maskContent.mask_coreFC1[i].length; j++) {
-        if (maskContent.mask_coreFC1[i][j] == 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = BLANCO;
-        } else if (maskContent.mask_coreFC1[i][j] != 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = VERDE_CRUZ;
-        } else if (maskContent.mask_coreFC1[i][j] != 65535 && mascara[i][j] == ROJO_CRUZ) {
-          mascara[i][j] = BICOLOR_CRUZ;
-        }
+
+// Primera mascara de la cruz (Verde)
+if (MASK_CORE_1.length != 0) {
+  for (var i = 0; i < MASK_CORE_1.length; i++) {
+    for (var j = 0; j < MASK_CORE_1[i].length; j++) {
+      if (MASK_CORE_1[i][j] == 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = BLANCO;
+      } else if (MASK_CORE_1[i][j] != 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = VERDE_CRUZ;
+      } else if (MASK_CORE_1[i][j] != 65535 && mascara[i][j] == ROJO_CRUZ) {
+        mascara[i][j] = BICOLOR_CRUZ;
       }
     }
   }
+}
 
-  // Segunda mascara de la cruz (Rojo)
-  if (maskContent.mask_coreFC2.length != 0) {
-    for (var i = 0; i < maskContent.mask_coreFC2.length; i++) {
-      for (var j = 0; j < maskContent.mask_coreFC2[i].length; j++) {
-        if (maskContent.mask_coreFC2[i][j] == 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = BLANCO;
-        } else if (maskContent.mask_coreFC2[i][j] != 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = ROJO_CRUZ;
-        } else if (maskContent.mask_coreFC2[i][j] != 65535 && mascara[i][j] == VERDE_CRUZ) {
-          mascara[i][j] = BICOLOR_CRUZ;
-        }
+// Segunda mascara de la cruz (Rojo)
+if (MASK_CORE_2.length != 0) {
+  for (var i = 0; i < MASK_CORE_2.length; i++) {
+    for (var j = 0; j < MASK_CORE_2[i].length; j++) {
+      if (MASK_CORE_2[i][j] == 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = BLANCO;
+      } else if (MASK_CORE_2[i][j] != 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = ROJO_CRUZ;
+      } else if (MASK_CORE_2[i][j] != 65535 && mascara[i][j] == VERDE_CRUZ) {
+        mascara[i][j] = BICOLOR_CRUZ;
       }
     }
   }
+}
 
-  // Primera mascara de la orla (Verde)
-  if (maskContent.mask_orlaFC1.length != 0) {
-    for (var i = 0; i < maskContent.mask_orlaFC1.length; i++) {
-      for (var j = 0; j < maskContent.mask_orlaFC1[i].length; j++) {
-        if (maskContent.mask_orlaFC1[i][j] == 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = BLANCO;
-        } else if (maskContent.mask_orlaFC1[i][j] != 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = VERDE_ORLA;
-        } else if (maskContent.mask_orlaFC1[i][j] != 65535 && mascara[i][j] == ROJO_ORLA) {
-          mascara[i][j] = BICOLOR_ORLA;
-        }
+// Primera mascara de la orla (Verde)
+if (MASK_CORE_3.length != 0) {
+  for (var i = 0; i < MASK_CORE_3.length; i++) {
+    for (var j = 0; j < MASK_CORE_3[i].length; j++) {
+      if (MASK_CORE_3[i][j] == 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = BLANCO;
+      } else if (MASK_CORE_3[i][j] != 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = VERDE_ORLA;
+      } else if (MASK_CORE_3[i][j] != 65535 && mascara[i][j] == ROJO_ORLA) {
+        mascara[i][j] = BICOLOR_ORLA;
       }
     }
   }
+}
 
-  // Segunda mascara de la orla (Rojo)
-  if (maskContent.mask_orlaFC2.length != 0) {
-    for (var i = 0; i < maskContent.mask_orlaFC2.length; i++) {
-      for (var j = 0; j < maskContent.mask_orlaFC2[i].length; j++) {
-        if (maskContent.mask_orlaFC2[i][j] == 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = BLANCO;
-        } else if (maskContent.mask_orlaFC2[i][j] != 65535 && mascara[i][j] == BLANCO) {
-          mascara[i][j] = ROJO_ORLA;
-        } else if (maskContent.mask_orlaFC2[i][j] != 65535 && mascara[i][j] == VERDE_ORLA) {
-          mascara[i][j] = BICOLOR_ORLA;
-        }
+// Segunda mascara de la orla (Rojo)
+if (MASK_CORE_4.length != 0) {
+  for (var i = 0; i < MASK_CORE_4.length; i++) {
+    for (var j = 0; j < MASK_CORE_4[i].length; j++) {
+      if (MASK_CORE_4[i][j] == 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = BLANCO;
+      } else if (MASK_CORE_4[i][j] != 65535 && mascara[i][j] == BLANCO) {
+        mascara[i][j] = ROJO_ORLA;
+      } else if (MASK_CORE_4[i][j] != 65535 && mascara[i][j] == VERDE_ORLA) {
+        mascara[i][j] = BICOLOR_ORLA;
       }
     }
   }
+}
 }
 
 
