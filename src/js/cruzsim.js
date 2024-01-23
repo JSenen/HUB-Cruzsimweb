@@ -122,6 +122,10 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   const maskMatrixFC2 = jsonDataCTX.mask_coreFC2 ?? jsonDataCTX.mask_cano2C1;       // Esquinas
   const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1 ?? jsonDataCTX.mask_cano3C1;   // Orla 1
   const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2 ?? jsonDataCTX.mask_cano4C1;   // Orla 2
+  const maskMatrixBC1 = jsonDataCTX.mask_coreBC1;
+  const maskMatrixBC2 = jsonDataCTX.mask_coreBC2;
+  const maskMatrixOrlaBC1 = jsonDataCTX.mask_orlaBC1;
+  const maskMatrixOrlaBC2 = jsonDataCTX.mask_orlaBC2;
 
   // Cambiar el color de dibujo en blanco
   ctx.fillStyle = "white";
@@ -146,11 +150,23 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
     ctx.restore();
   }
 
-  // Dibuja las matrices en el canvas
+  
+  
+  if (Array.isArray(maskMatrixBC1) && maskMatrixBC1.length != 0 ){
+     //TODO Paneles
+  drawMatrix(maskMatrixBC1);
+  drawMatrix(maskMatrixBC2);
+  drawMatrix(maskMatrixOrlaBC1);
+  drawMatrix(maskMatrixOrlaBC2);
+
+  } else {
+    // Dibuja las matrices en el canvas
   drawMatrix(maskMatrix);
   drawMatrix(maskMatrixFC2);
   drawMatrix(maskMatrixOrlaFC1);
   drawMatrix(maskMatrixOrlaFC2);
+  }
+ 
 }
 // Funcion dibuja las mascaras de las animaciones LED
 function dibujarMascara(maskMatrix, maskMatrix2, maskMatrixO1, maskMatrixO2, ctx, canvas) {
