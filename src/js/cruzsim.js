@@ -95,7 +95,7 @@ fileInput.addEventListener('change', function (event) {
     reader.onload = function (e) {
       const contents = e.target.result;
       jsonDataCTX = JSON.parse(contents);
-
+      console.log("JSON:",jsonDataCTX);
       // Llama a la función para dibujar el canvas personalizado
         dibujarCanvasPersonalizado(jsonDataCTX, ctx);
     };
@@ -118,11 +118,13 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Matrices del JSON que definen la máscara de la cruz o paneles
-  const maskMatrix = jsonDataCTX.mask_coreFC1 ?? jsonDataCTX.mask_cano1C1;        //Parte central
-  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2 ?? jsonDataCTX.mask_cano2C1;       // Esquinas
-  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1 ?? jsonDataCTX.mask_cano3C1;   // Orla 1
-  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2 ?? jsonDataCTX.mask_cano4C1;   // Orla 2
+  const maskMatrix = jsonDataCTX.mask_coreFC1;
+  const maskMatrixFC2 = jsonDataCTX.mask_coreFC2;
+  const maskMatrixOrlaFC1 = jsonDataCTX.mask_orlaFC1;
+  const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;
+  //Paneles añaden las mascaras siguientes
   const maskMatrixBC1 = jsonDataCTX.mask_coreBC1;
+  console.log("BC1 ",maskMatrixBC1.length);
   const maskMatrixBC2 = jsonDataCTX.mask_coreBC2;
   const maskMatrixOrlaBC1 = jsonDataCTX.mask_orlaBC1;
   const maskMatrixOrlaBC2 = jsonDataCTX.mask_orlaBC2;
@@ -153,14 +155,18 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   
   
   if (Array.isArray(maskMatrixBC1) && maskMatrixBC1.length != 0 ){
-     //TODO Paneles
+     //// Dibuja las matrices en el canvas de una mascara de panel
+  drawMatrix(maskMatrix);
+  drawMatrix(maskMatrixFC2);
+  drawMatrix(maskMatrixOrlaFC1);
+  drawMatrix(maskMatrixOrlaFC2);
   drawMatrix(maskMatrixBC1);
   drawMatrix(maskMatrixBC2);
   drawMatrix(maskMatrixOrlaBC1);
   drawMatrix(maskMatrixOrlaBC2);
 
   } else {
-    // Dibuja las matrices en el canvas
+    // Dibuja las matrices en el canvas de una mascara de cruz
   drawMatrix(maskMatrix);
   drawMatrix(maskMatrixFC2);
   drawMatrix(maskMatrixOrlaFC1);
