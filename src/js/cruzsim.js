@@ -806,9 +806,17 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   clearInterval(scrollControl);
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia animacion creada.";
   console.log("ESTADO PANEL --> ",panel);
-  //Indicamos cuales son los parametros de altura y longitud de la cruz para poder trabajar con ellos.
-  cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
-  cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
+  console.log("CROSS MASK: ", cross_mask.mask_coreFC1[0].length);
+    //Indicamos cuales son los parametros de altura y longitud de la cruz para poder trabajar con ellos.
+  if (!panel){
+    cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
+    cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
+  } else if (panel) {
+
+    cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
+    cross_width = 280;
+  }
+ 
 
   //================= SELECTION ANIMACION FICHERO LED =====================
   if (animationled) {
