@@ -48,6 +48,7 @@ var timeoutId;
 var animationled;
 var fileAnimation;
 var jsonDataCTX;
+var panel = false; // Indica si ha leido un panel en la mascara
 
 const colorMapping = {
   0: bmpApagado,
@@ -124,7 +125,6 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   const maskMatrixOrlaFC2 = jsonDataCTX.mask_orlaFC2;
   //Paneles añaden las mascaras siguientes
   const maskMatrixBC1 = jsonDataCTX.mask_coreBC1;
-  console.log("BC1 ",maskMatrixBC1.length);
   const maskMatrixBC2 = jsonDataCTX.mask_coreBC2;
   const maskMatrixOrlaBC1 = jsonDataCTX.mask_orlaBC1;
   const maskMatrixOrlaBC2 = jsonDataCTX.mask_orlaBC2;
@@ -164,6 +164,8 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   drawMatrix(maskMatrixBC2);
   drawMatrix(maskMatrixOrlaBC1);
   drawMatrix(maskMatrixOrlaBC2);
+  console.log("PANEL: ",jsonDataCTX.mask_coreFC1[0].length);
+  panel = true;
 
   } else {
     // Dibuja las matrices en el canvas de una mascara de cruz
@@ -171,6 +173,8 @@ function dibujarCanvasPersonalizado(jsonDataCTX, ctx) {
   drawMatrix(maskMatrixFC2);
   drawMatrix(maskMatrixOrlaFC1);
   drawMatrix(maskMatrixOrlaFC2);
+  panel = false;
+  
   }
  
 }
@@ -685,10 +689,10 @@ function checkArrays(maskContent) {
   const BICOLOR_ORLA = 6;
 
 //Integracion de mascaras y paneles, necesario variables comunes
-const MASK_CORE_1 = maskContent.mask_coreFC1 ?? maskContent.mask_cano1C1; 
-const MASK_CORE_2 = maskContent.mask_coreFC2 ?? maskContent.mask_cano2C1;
-const MASK_CORE_3 = maskContent.mask_orlaFC1 ?? maskContent.mask_cano3C1;
-const MASK_CORE_4 = maskContent.mask_orlaFC2 ?? maskContent.mask_cano4C1;
+const MASK_CORE_1 = maskContent.mask_coreFC1;
+const MASK_CORE_2 = maskContent.mask_coreFC2;
+const MASK_CORE_3 = maskContent.mask_orlaFC1;
+const MASK_CORE_4 = maskContent.mask_orlaFC2;
 
 
 // Primera mascara de la cruz (Verde)
@@ -801,7 +805,7 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
   //Limpiamos el panel y indicamos el inicio de la secuencia
   clearInterval(scrollControl);
   document.getElementById("textoInfo").innerHTML = "Inicio secuencia animacion creada.";
-
+  console.log("ESTADO PANEL --> ",panel);
   //Indicamos cuales son los parametros de altura y longitud de la cruz para poder trabajar con ellos.
   cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
   cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
@@ -864,7 +868,7 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
 
   for (var i = 0; i < cross_height; i++) { //i = y
     for (var j = 0; j < cross_width; j++) { // j = x
-
+      
       //Dibujamos orla si se indica con el color escogido si dispone de el
       //Si es bicolor, puede tener los tres
       if (action_orla == true) {
