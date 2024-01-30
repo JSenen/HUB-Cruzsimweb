@@ -812,9 +812,9 @@ function animation(cross_mask, action_message, action_top_draw, action_bottom_dr
     cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
     cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
   } else if (panel) {
-
+    //TODO definir segun panel seleccionado
     cross_height = topPanel_Y + middlePanel_Y + bottomPanel_Y + topEdge + bottomEdge;
-    cross_width = 280;
+    cross_width = Math.max(topPanel_X, middlePanel_X, bottomPanel_X) + leftEdge + rightEdge;
   }
  
 
